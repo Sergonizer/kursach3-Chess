@@ -18,33 +18,33 @@ using System.Windows.Input;
 
 namespace ChessClient
 {
-    class cell : RadioButton
+    class cell : RadioButton //класс фигуры
     {
-        Pos pos;
-        int[] size = new int[2];
-        Piece piece = null;
-        bool isChecked = false;
+        Pos pos; //позиция фигуры
+        int[] size = new int[2]; //размер
+        Piece piece = null; //тип фигуры
+        bool isChecked = false; //состояние под шахом ли
 
         public cell(int x, int y)
         {
             pos = new Pos(x, y);
             this.Style = FindResource(typeof(ToggleButton)) as Style;
         }
-        public bool ChangeCheckState()
+        public bool ChangeCheckState() // функция изменния состояния шаха
         {
             isChecked = !isChecked;
             return isChecked;
         }
-        public void ChangeCheckState(bool state)
+        public void ChangeCheckState(bool state) //функция изменния состояния шаха
         {
             isChecked = state;
         }
-        public void SetSize(int x_, int y_)
+        public void SetSize(int x_, int y_) //изменить координаты
         {
             size[0] = x_;
             size[1] = y_;
         }
-        public void SetPiece(Piece piece_)
+        public void SetPiece(Piece piece_) 
         {
             piece = piece_;
             if (piece_ == null)
@@ -58,19 +58,19 @@ namespace ChessClient
                 ((Grid)Content).Children.Add(dotImage);
             }
         }
-        public Piece GetPiece()
+        public Piece GetPiece() //узнать тип фигуры
         {
             return piece;
         }
-        public Pos GetPos()
+        public Pos GetPos() //узнать позицию
         {
             return pos;
         }
     }
-    internal class Board
+    internal class Board //класс доски
     {
         Grid GridBoard;
-        BitmapImage bmi = new BitmapImage(new Uri("pack://application:,,,/resources/dot.png"));
+        BitmapImage bmi = new BitmapImage(new Uri("pack://application:,,,/resources/dot.png")); //ставим картинки
         cell[][] board = new cell[8][];
         public cell[] prev = new cell[2];
         System.Windows.Controls.Image[] promote_white = new System.Windows.Controls.Image[4] {
@@ -85,20 +85,20 @@ namespace ChessClient
             ToImage(new BitmapImage(new Uri("pack://application:,,,/resources/blackbishop.png"))),
             ToImage(new BitmapImage(new Uri("pack://application:,,,/resources/blackknight.png")))
         };
-        PieceColor turn = PieceColor.White;
+        PieceColor turn = PieceColor.White; //первый ход у белых
         static private System.Windows.Controls.Image ToImage(BitmapImage img)
         {
             System.Windows.Controls.Image image = new System.Windows.Controls.Image();
             image.Source = img;
             return image;
         }
-        public enum CheckStaleMate
+        public enum CheckStaleMate //перечисление состояний короля (ничего, мат, пат)
         {
             None,
             Checkmate,
             Stalemate
         }
-        private void Cell_Click(object sender, RoutedEventArgs e)
+        private void Cell_Click(object sender, RoutedEventArgs e) //функция клика по клетке
         {
             bool state = ((cell)sender).ChangeCheckState();
             if (!state)
@@ -159,7 +159,7 @@ namespace ChessClient
                 }
             }
         }
-        public cell FindKing(PieceColor col)
+        public cell FindKing(PieceColor col) //находим короля
         {
             for (int x = 0; x < 8; x++)
                 for (int y = 0; y < 8; y++)
@@ -167,7 +167,7 @@ namespace ChessClient
                         return board[x][y];
             return null;
         }
-        public CheckStaleMate IsMate(PieceColor by)
+        public CheckStaleMate IsMate(PieceColor by) //проверка на мат
         {
             bool check = IsCheck(by);
             bool nomoves = true;
@@ -189,7 +189,7 @@ namespace ChessClient
                 if (!nomoves)
                     break;
             }
-            SwapTurn();
+            SwapTurn(); //меняем ход между пользователями
             if (nomoves && check)
                 return CheckStaleMate.Checkmate;
             else if (nomoves && !check)
@@ -197,7 +197,7 @@ namespace ChessClient
             else
                 return CheckStaleMate.None;
         }
-        public bool IsCheck(PieceColor by)
+        public bool IsCheck(PieceColor by) //проверка на шах
         {
             bool swapped = false;
             if (GetTurn() != by)
@@ -227,19 +227,19 @@ namespace ChessClient
                 SwapTurn();
             return check;
         }
-        public cell[][] GetBoard()
+        public cell[][] GetBoard() //узнаём клетку
         {
             return board;
         }
-        public PieceColor GetTurn()
+        public PieceColor GetTurn() //узнаём ход
         {
             return turn;
         }
-        public void SwapTurn()
+        public void SwapTurn() //меяем ход
         {
             turn = (turn == PieceColor.White ? PieceColor.Black : PieceColor.White);
         }
-        public Board()
+        public Board() //расставляем фигуры на доске
         {
             for (int i = 0; i < 8; i++)
             {
@@ -282,7 +282,7 @@ namespace ChessClient
             board[6][7].SetPiece(new Knight(this, 6, 7, PieceColor.White));
             board[7][7].SetPiece(new Rook(this, 7, 7, PieceColor.White));
         }
-        public void Draw(Grid gridBoard)
+        public void Draw(Grid gridBoard) //отрисовка фигур
         {
             GridBoard = gridBoard;
             double w = gridBoard.Width, h = gridBoard.Height;

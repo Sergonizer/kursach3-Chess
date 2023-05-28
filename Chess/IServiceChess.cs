@@ -7,22 +7,21 @@ using System.Text;
 
 namespace Chess
 {
-    // ПРИМЕЧАНИЕ. Можно использовать команду "Переименовать" в меню "Рефакторинг", чтобы изменить имя интерфейса "IServiceChess" в коде и файле конфигурации.
-    [ServiceContract(CallbackContract = typeof(IServerChessCallback))]
-    public interface IServiceChess
+    [ServiceContract(CallbackContract = typeof(IServerChessCallback))] //даём понять что у нас есть интерфейс действий сервера
+    public interface IServiceChess //интерфейс действий пользователя
     {
         [OperationContract]
-        int Connect(string name);
+        int Connect(string name); //подключение к матчу
         [OperationContract]
-        void Disconnect(int id);
+        void Disconnect(int id); //отключение
         [OperationContract(IsOneWay = true)]
-        void SendMsg(string msg, int id);
-        [OperationContract(IsOneWay = true)]
+        void SendMsg(string msg, int id); //отправить сообщение
+        [OperationContract(IsOneWay = true)] //не нужна обработка от сервера
         void Move(int x, char y);
     }
-    public interface IServerChessCallback
+    public interface IServerChessCallback //интерфейс действий сервера
     {
         [OperationContract(IsOneWay = true)]
-        void MsgCallback(string msg);
+        void MsgCallback(string msg); //рассылка сообщений пользователям
     }
 }

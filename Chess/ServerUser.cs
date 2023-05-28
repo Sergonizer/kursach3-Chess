@@ -7,10 +7,10 @@ using System.ServiceModel;
 
 namespace Chess
 {
-    public class ServerUser
+    public class ServerUser //класс пользователя
     {
-        public int ID {get;set;}
-        public string Name { get;set;}
-        public OperationContext OperationContext { get;set;}
+        public int ID {get;set;} //Id
+        public string Name { get;set;} // имя
+        public OperationContext OperationContext { get;set;} //сведения о подключении пользователя
     }
 }

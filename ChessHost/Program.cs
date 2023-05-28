@@ -11,11 +11,11 @@ namespace ChessHost
     {
         static void Main(string[] args)
         {
-            using(var host = new ServiceHost(typeof(Chess.ServiceChess)))
+            using(var host = new ServiceHost(typeof(Chess.ServiceChess))) // включаем хост
             {
-                host.Open();
+                host.Open(); //открываем хост
                 Console.WriteLine("Хостим");
-                Console.ReadLine();
+                Console.ReadLine(); //чтобы хост не закрылся
             }
         }
     }

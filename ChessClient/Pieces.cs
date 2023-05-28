@@ -20,7 +20,7 @@ using System.Xml.Linq;
 
 namespace ChessClient
 {
-    struct Pos
+    struct Pos //стурктура позиции по координатам
     {
         public int x;
         public int y;
@@ -30,44 +30,44 @@ namespace ChessClient
             y = y_;
         }
     }
-    struct Search
+    struct Search //структура поиска
     {
         public bool add;
         public bool stop;
     }
-    struct Capture
+    struct Capture //структура захвата
     {
         public Pos pos;
         public Piece piece;
 
-        public Capture(Pos pos_, Piece piece_)
+        public Capture(Pos pos_, Piece piece_) //конструктор
         {
             pos = pos_;
             piece = piece_;
         }
     }
-    enum PieceColor
+    enum PieceColor //перечисление цветов фигур
     {
         White,
         Black
     }
-    abstract class Piece
+    abstract class Piece //класс типа фигуры
     {
         protected Board Board;
         protected PieceColor PieceColor;
         protected System.Windows.Controls.Image image = new System.Windows.Controls.Image();
         protected Pos Pos;
         protected bool moved = false;
-        public abstract List<Pos> PossibleMoves(bool test = false);
-        public bool WasMoved()
+        public abstract List<Pos> PossibleMoves(bool test = false); //возможные шаги
+        public bool WasMoved() //узнаём двигалась ли фигура ранее
         {
             return moved;
         }
-        public void UnMove()
+        public void UnMove() //изменяем это состояние 
         {
             moved = false;
         }
-        public Capture MovePiece(cell[][] board, Pos pos, bool test = false)
+        public Capture MovePiece(cell[][] board, Pos pos, bool test = false) //двигаем фигуру
         {
             if (pos.x < 0 || pos.y < 0 || pos.x > 7 || pos.y > 7)
                 return new Capture(pos, null);
@@ -154,11 +154,11 @@ namespace ChessClient
             }
             return captured;
         }
-        public PieceColor GetPieceColor()
+        public PieceColor GetPieceColor() //узнаём цвет фигуры
         {
             return PieceColor;
         }
-        public System.Windows.Controls.Image Image()
+        public System.Windows.Controls.Image Image() //узнаём картинку фигуры
         {
             return image;
         }
@@ -195,7 +195,7 @@ namespace ChessClient
             return ret;
         }
     }
-    class Pawn : Piece
+    class Pawn : Piece //пешка производный класс от класса фигур
     {
         public Pawn(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -330,7 +330,7 @@ namespace ChessClient
             return pos;
         }
     }
-    class Rook : Piece
+    class Rook : Piece //ладья производный класс от класса фигур
     {
         public Rook(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -386,7 +386,7 @@ namespace ChessClient
             return pos;
         }
     }
-    class Knight : Piece
+    class Knight : Piece //конь производный класс от класса фигур
     {
         public Knight(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -434,7 +434,7 @@ namespace ChessClient
             return pos;
         }
     }
-    class Bishop : Piece
+    class Bishop : Piece //слон производный класс от класса фигур
     {
         public Bishop(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -490,7 +490,7 @@ namespace ChessClient
             return pos;
         }
     }
-    class Queen : Piece
+    class Queen : Piece //королева производный класс от класса фигур
     {
         public Queen(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -569,7 +569,7 @@ namespace ChessClient
             return pos;
         }
     }
-    class King : Piece
+    class King : Piece //король производный класс от класса фигур
     {
         public King(Board board, int x, int y, PieceColor pieceColor)
         {
