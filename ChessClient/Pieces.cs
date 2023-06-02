@@ -20,7 +20,7 @@ using System.Xml.Linq;
 
 namespace ChessClient
 {
-    struct Pos //стурктура позиции по координатам
+    public struct Pos //стурктура позиции по координатам
     {
         public int x;
         public int y;
@@ -30,12 +30,12 @@ namespace ChessClient
             y = y_;
         }
     }
-    struct Search //структура поиска
+    public struct Search //структура поиска
     {
         public bool add;
         public bool stop;
     }
-    struct Capture //структура захвата
+    public struct Capture //структура захвата
     {
         public Pos pos;
         public Piece piece;
@@ -46,18 +46,18 @@ namespace ChessClient
             piece = piece_;
         }
     }
-    enum PieceColor //перечисление цветов фигур
+    public enum PieceColor //перечисление цветов фигур
     {
         White,
         Black
     }
-    abstract class Piece //класс типа фигуры
+    public abstract class Piece //класс типа фигуры
     {
-        protected Board Board;
-        protected PieceColor PieceColor;
+        public Board Board;
+        public PieceColor PieceColor;
         protected System.Windows.Controls.Image image = new System.Windows.Controls.Image();
-        protected Pos Pos;
-        protected bool moved = false;
+        public Pos Pos;
+        public bool moved = false;
         public abstract List<Pos> PossibleMoves(bool test = false); //возможные шаги
         public bool WasMoved() //узнаём двигалась ли фигура ранее
         {
@@ -162,7 +162,7 @@ namespace ChessClient
         {
             return image;
         }
-        protected Search ToAddPos(Pos Pos)
+        public Search ToAddPos(Pos Pos)
         {
             Search ret;
             if (Pos.x > 7 || Pos.x < 0 || Pos.y > 7 || Pos.y < 0)

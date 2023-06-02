@@ -16,9 +16,10 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
 
+
 namespace ChessClient
 {
-    class cell : RadioButton //класс фигуры
+    public class cell : RadioButton //класс фигуры
     {
         Pos pos; //позиция фигуры
         int[] size = new int[2]; //размер
@@ -44,7 +45,7 @@ namespace ChessClient
             size[0] = x_;
             size[1] = y_;
         }
-        public void SetPiece(Piece piece_) 
+        public void SetPiece(Piece piece_)
         {
             piece = piece_;
             if (piece_ == null)
@@ -67,8 +68,9 @@ namespace ChessClient
             return pos;
         }
     }
-    internal class Board //класс доски
+    public class Board //класс доски
     {
+        private PieceColor color;
         Grid GridBoard;
         BitmapImage bmi = new BitmapImage(new Uri("pack://application:,,,/resources/dot.png")); //ставим картинки
         cell[][] board = new cell[8][];
@@ -239,8 +241,9 @@ namespace ChessClient
         {
             turn = (turn == PieceColor.White ? PieceColor.Black : PieceColor.White);
         }
-        public Board() //расставляем фигуры на доске
+        public Board(PieceColor Color) //расставляем фигуры на доске
         {
+            color = Color;
             for (int i = 0; i < 8; i++)
             {
                 board[i] = new cell[8];
@@ -282,7 +285,7 @@ namespace ChessClient
             board[6][7].SetPiece(new Knight(this, 6, 7, PieceColor.White));
             board[7][7].SetPiece(new Rook(this, 7, 7, PieceColor.White));
         }
-        public void Draw(Grid gridBoard) //отрисовка фигур
+        public void Draw(Grid gridBoard, PieceColor color) //отрисовка фигур
         {
             GridBoard = gridBoard;
             double w = gridBoard.Width, h = gridBoard.Height;
@@ -290,12 +293,21 @@ namespace ChessClient
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    board[i][j].SetSize(System.Convert.ToInt32(Math.Round(w / 8)), System.Convert.ToInt32(Math.Round(h / 8)));
-                    Grid.SetRow(board[i][j], j);
-                    Grid.SetColumn(board[i][j], i);
-                    gridBoard.Children.Add(board[i][j]);
+                    if (color == PieceColor.White)
+                    {
+                        board[i][j].SetSize(System.Convert.ToInt32(Math.Round(w / 8)), System.Convert.ToInt32(Math.Round(h / 8)));
+                        Grid.SetRow(board[i][j], j);
+                        Grid.SetColumn(board[i][j], i);
+                        gridBoard.Children.Add(board[i][j]);
+                    }
+                    else
+                    {
+                        board[i][j].SetSize(System.Convert.ToInt32(Math.Round(w / 8)), System.Convert.ToInt32(Math.Round(h / 8)));
+                        Grid.SetRow(board[i][j], 7-j);
+                        Grid.SetColumn(board[i][j], 7-i);
+                        gridBoard.Children.Add(board[i][j]);
+                    }
                 }
             }
         }
     }
-}

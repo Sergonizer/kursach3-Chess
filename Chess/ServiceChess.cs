@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChessClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -11,17 +12,19 @@ namespace Chess
     public class ServiceChess : IServiceChess
     {
         List<ServerUser> users = new List<ServerUser>(); //создаём список пользователей
-        int nextId = 1; //переменная для создания id пользователей
+        public int nextId = 1; //переменная для создания id пользователей
+        public PieceColor color = PieceColor.White;
         public int Connect(string name)
         {
             ServerUser user = new ServerUser() //создаём нового польщователя и задаём его данные
             {
                 ID = nextId,
                 Name = name,
+                Color = color,
                 OperationContext = OperationContext.Current
             };
             nextId++;
-
+            color = PieceColor.Black;
             SendMsg(": <" + user.Name + "> зашёл в игру", 0); //отправляем сообщение
             users.Add(user); //добавляем пользователя в список
             return user.ID;

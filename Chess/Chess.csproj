@@ -52,5 +52,14 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ChessClient\ChessClient.csproj">
+      <Project>{6d954c71-fe1f-4290-95c7-ee9d7809ad4d}</Project>
+      <Name>ChessClient</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
