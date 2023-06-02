@@ -259,7 +259,7 @@ namespace ChessClient
         }
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn())
+            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -353,7 +353,7 @@ namespace ChessClient
         }
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn())
+            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -399,7 +399,7 @@ namespace ChessClient
 
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn())
+            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -457,7 +457,7 @@ namespace ChessClient
         }
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn())
+            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -524,7 +524,7 @@ namespace ChessClient
         }
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn())
+            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -658,7 +658,7 @@ namespace ChessClient
         }
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn())
+            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();

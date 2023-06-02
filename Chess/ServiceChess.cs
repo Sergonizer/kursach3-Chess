@@ -13,21 +13,30 @@ namespace Chess
     {
         List<ServerUser> users = new List<ServerUser>(); //создаём список пользователей
         public int nextId = 1; //переменная для создания id пользователей
-        public PieceColor color = PieceColor.White;
-        public int Connect(string name)
+        public Get Connect(string name)
         {
-            ServerUser user = new ServerUser() //создаём нового польщователя и задаём его данные
+            int c = 0;
+            if (nextId % 2 == 1)
+            {
+                Random r = new Random();
+                c = r.Next(2);
+            }
+            else
+                c = 1 - c;
+            ServerUser user = new ServerUser() //создаём нового пользователя и задаём его данные
             {
                 ID = nextId,
-                Name = name,
-                Color = color,
+                Name = name.Length == 0 ? "Player " + nextId.ToString() : name,
+                Color = c == 0 ? PieceColor.White : PieceColor.Black,
                 OperationContext = OperationContext.Current
             };
             nextId++;
-            color = PieceColor.Black;
             SendMsg(": <" + user.Name + "> зашёл в игру", 0); //отправляем сообщение
             users.Add(user); //добавляем пользователя в список
-            return user.ID;
+            Get get;
+            get.color = user.Color;
+            get.id = user.ID;
+            return get;
         }
 
         public void Disconnect(int id)

@@ -16,16 +16,16 @@ using System.Windows.Shapes;
 
 namespace ChessClient
 {
+    public struct Get { public int id; public PieceColor color; };
     public partial class MainWindow : Window, ServiceChess.IServiceChessCallback
     {
         bool isConnected = false;
         ServiceChess.ServiceChessClient client;
         int ID;
-        internal Board board = new Board();
+        internal Board board;
         public MainWindow()
         {
             InitializeComponent();
-            board.Draw(gridBoard);
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -35,7 +35,10 @@ namespace ChessClient
         {
             if (!isConnected)
             {
-                ID = client.Connect(tbUserName.Text);
+                ServiceChess.Get g = client.Connect(tbUserName.Text);
+                board = new Board((PieceColor)g.color);
+                ID = g.id;
+                board.Draw(gridBoard);
                 tbUserName.IsEnabled = false;
                 btnCon.Content = "Disconnect";
                 isConnected = true;

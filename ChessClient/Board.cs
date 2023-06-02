@@ -70,7 +70,7 @@ namespace ChessClient
     }
     public class Board //класс доски
     {
-        private PieceColor color;
+        private PieceColor UserColor;
         Grid GridBoard;
         BitmapImage bmi = new BitmapImage(new Uri("pack://application:,,,/resources/dot.png")); //ставим картинки
         cell[][] board = new cell[8][];
@@ -152,12 +152,15 @@ namespace ChessClient
                     if (king == new_cell && ((cell)sender).Background == System.Windows.Media.Brushes.Red)
                         if (!IsCheck(opposite))
                             ((cell)sender).Background = (((cell)sender).GetPos().x + ((cell)sender).GetPos().y) % 2 == 1 ? System.Windows.Media.Brushes.Gray : System.Windows.Media.Brushes.White;
-                    CheckStaleMate checkStaleMate = IsMate(new_cell.GetPiece().GetPieceColor());
-                    if (checkStaleMate == CheckStaleMate.Checkmate)
-                        MessageBox.Show((new_cell.GetPiece().GetPieceColor() == PieceColor.White ? "Белые" : "Чёрные") + " поставили мат! Игра окончена!");
-                    else if (checkStaleMate == CheckStaleMate.Stalemate)
-                        MessageBox.Show("Пат! Игра окончена!");
                     SwapTurn();
+                    if (GetTurn() == new_cell.GetPiece().GetPieceColor())
+                    {
+                        CheckStaleMate checkStaleMate = IsMate(new_cell.GetPiece().GetPieceColor());
+                        if (checkStaleMate == CheckStaleMate.Checkmate)
+                            MessageBox.Show((new_cell.GetPiece().GetPieceColor() == PieceColor.White ? "Белые" : "Чёрные") + " поставили мат! Игра окончена!");
+                        else if (checkStaleMate == CheckStaleMate.Stalemate)
+                            MessageBox.Show("Пат! Игра окончена!");
+                    }
                 }
             }
         }
@@ -237,13 +240,21 @@ namespace ChessClient
         {
             return turn;
         }
+        public PieceColor GetUser() //получить цвет игрока
+        {
+            return UserColor;
+        }
+        public void SetUser(PieceColor val) //присвоить цвет игрока
+        {
+            UserColor = val;
+        }
         public void SwapTurn() //меяем ход
         {
             turn = (turn == PieceColor.White ? PieceColor.Black : PieceColor.White);
         }
         public Board(PieceColor Color) //расставляем фигуры на доске
         {
-            color = Color;
+            UserColor = Color;
             for (int i = 0; i < 8; i++)
             {
                 board[i] = new cell[8];
@@ -285,7 +296,7 @@ namespace ChessClient
             board[6][7].SetPiece(new Knight(this, 6, 7, PieceColor.White));
             board[7][7].SetPiece(new Rook(this, 7, 7, PieceColor.White));
         }
-        public void Draw(Grid gridBoard, PieceColor color) //отрисовка фигур
+        public void Draw(Grid gridBoard) //отрисовка фигур
         {
             GridBoard = gridBoard;
             double w = gridBoard.Width, h = gridBoard.Height;
@@ -293,7 +304,7 @@ namespace ChessClient
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    if (color == PieceColor.White)
+                    if (UserColor == PieceColor.White)
                     {
                         board[i][j].SetSize(System.Convert.ToInt32(Math.Round(w / 8)), System.Convert.ToInt32(Math.Round(h / 8)));
                         Grid.SetRow(board[i][j], j);
@@ -303,11 +314,12 @@ namespace ChessClient
                     else
                     {
                         board[i][j].SetSize(System.Convert.ToInt32(Math.Round(w / 8)), System.Convert.ToInt32(Math.Round(h / 8)));
-                        Grid.SetRow(board[i][j], 7-j);
-                        Grid.SetColumn(board[i][j], 7-i);
+                        Grid.SetRow(board[i][j], 7 - j);
+                        Grid.SetColumn(board[i][j], 7 - i);
                         gridBoard.Children.Add(board[i][j]);
                     }
                 }
             }
         }
     }
+}

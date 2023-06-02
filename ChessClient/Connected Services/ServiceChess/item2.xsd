@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ChessClient" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ChessClient" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost:8301/?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="Get">
+    <xs:annotation>
+      <xs:appinfo>
+        <IsValueType xmlns="http://schemas.microsoft.com/2003/10/Serialization/">true</IsValueType>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element minOccurs="0" name="color" type="tns:PieceColor" />
+      <xs:element minOccurs="0" name="id" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Get" nillable="true" type="tns:Get" />
+  <xs:simpleType name="PieceColor">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="White" />
+      <xs:enumeration value="Black" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="PieceColor" nillable="true" type="tns:PieceColor" />
+</xs:schema>

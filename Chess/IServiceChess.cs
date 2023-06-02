@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChessClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -11,7 +12,7 @@ namespace Chess
     public interface IServiceChess //интерфейс действий пользователя
     {
         [OperationContract]
-        int Connect(string name); //подключение к матчу
+        Get Connect(string name); //подключение к матчу
         [OperationContract]
         void Disconnect(int id); //отключение
         [OperationContract(IsOneWay = true)]

@@ -9,17 +9,90 @@
 //------------------------------------------------------------------------------
 
 namespace ChessClient.ServiceChess {
+    using System.Runtime.Serialization;
+    using System;
     
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Get", Namespace="http://schemas.datacontract.org/2004/07/ChessClient")]
+    [System.SerializableAttribute()]
+    public partial struct Get : System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ChessClient.ServiceChess.PieceColor colorField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int idField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ChessClient.ServiceChess.PieceColor color {
+            get {
+                return this.colorField;
+            }
+            set {
+                if ((this.colorField.Equals(value) != true)) {
+                    this.colorField = value;
+                    this.RaisePropertyChanged("color");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int id {
+            get {
+                return this.idField;
+            }
+            set {
+                if ((this.idField.Equals(value) != true)) {
+                    this.idField = value;
+                    this.RaisePropertyChanged("id");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PieceColor", Namespace="http://schemas.datacontract.org/2004/07/ChessClient")]
+    public enum PieceColor : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        White = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Black = 1,
+    }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ServiceChess.IServiceChess", CallbackContract=typeof(ChessClient.ServiceChess.IServiceChessCallback))]
     public interface IServiceChess {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServiceChess/Connect", ReplyAction="http://tempuri.org/IServiceChess/ConnectResponse")]
-        int Connect(string name);
+        ChessClient.ServiceChess.Get Connect(string name);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServiceChess/Connect", ReplyAction="http://tempuri.org/IServiceChess/ConnectResponse")]
-        System.Threading.Tasks.Task<int> ConnectAsync(string name);
+        System.Threading.Tasks.Task<ChessClient.ServiceChess.Get> ConnectAsync(string name);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IServiceChess/Disconnect", ReplyAction="http://tempuri.org/IServiceChess/DisconnectResponse")]
         void Disconnect(int id);
@@ -75,11 +148,11 @@ namespace ChessClient.ServiceChess {
                 base(callbackInstance, binding, remoteAddress) {
         }
         
-        public int Connect(string name) {
+        public ChessClient.ServiceChess.Get Connect(string name) {
             return base.Channel.Connect(name);
         }
         
-        public System.Threading.Tasks.Task<int> ConnectAsync(string name) {
+        public System.Threading.Tasks.Task<ChessClient.ServiceChess.Get> ConnectAsync(string name) {
             return base.Channel.ConnectAsync(name);
         }
         
