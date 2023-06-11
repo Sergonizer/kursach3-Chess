@@ -16,7 +16,7 @@ namespace Chess
         [OperationContract]
         void Disconnect(int id); //отключение
         [OperationContract(IsOneWay = true)]
-        void SendMsg(string msg, int id); //отправить сообщение
+        void SendMsg(string msg, int id, int to = 0); //отправить сообщение
         [OperationContract(IsOneWay = true)] //не нужна обработка от сервера
         void Move(int x, char y);
     }
@@ -24,5 +24,6 @@ namespace Chess
     {
         [OperationContract(IsOneWay = true)]
         void MsgCallback(string msg); //рассылка сообщений пользователям
+
     }
 }
