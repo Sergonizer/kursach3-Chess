@@ -54,8 +54,29 @@
   <wsdl:message name="IServiceChess_Move_InputMessage">
     <wsdl:part name="parameters" element="tns:Move" />
   </wsdl:message>
+  <wsdl:message name="IServiceChess_Surrender_InputMessage">
+    <wsdl:part name="parameters" element="tns:Surrender" />
+  </wsdl:message>
+  <wsdl:message name="IServiceChess_Ready_InputMessage">
+    <wsdl:part name="parameters" element="tns:Ready" />
+  </wsdl:message>
+  <wsdl:message name="IServiceChess_UpdateColor_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateColor" />
+  </wsdl:message>
   <wsdl:message name="IServiceChess_MsgCallback_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:MsgCallback" />
+  </wsdl:message>
+  <wsdl:message name="IServiceChess_ChangeColor_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ChangeColor" />
+  </wsdl:message>
+  <wsdl:message name="IServiceChess_Start_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:Start" />
+  </wsdl:message>
+  <wsdl:message name="IServiceChess_MoveUser_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:MoveUser" />
+  </wsdl:message>
+  <wsdl:message name="IServiceChess_SurrenderUser_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:SurrenderUser" />
   </wsdl:message>
   <wsdl:portType name="IServiceChess">
     <wsdl:operation name="Connect">
@@ -72,8 +93,29 @@
     <wsdl:operation name="Move">
       <wsdl:input wsaw:Action="http://tempuri.org/IServiceChess/Move" message="tns:IServiceChess_Move_InputMessage" />
     </wsdl:operation>
+    <wsdl:operation name="Surrender">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServiceChess/Surrender" message="tns:IServiceChess_Surrender_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Ready">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServiceChess/Ready" message="tns:IServiceChess_Ready_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateColor">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServiceChess/UpdateColor" message="tns:IServiceChess_UpdateColor_InputMessage" />
+    </wsdl:operation>
     <wsdl:operation name="MsgCallback">
       <wsdl:output wsaw:Action="http://tempuri.org/IServiceChess/MsgCallback" message="tns:IServiceChess_MsgCallback_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeColor">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServiceChess/ChangeColor" message="tns:IServiceChess_ChangeColor_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Start">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServiceChess/Start" message="tns:IServiceChess_Start_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="MoveUser">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServiceChess/MoveUser" message="tns:IServiceChess_MoveUser_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SurrenderUser">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServiceChess/SurrenderUser" message="tns:IServiceChess_SurrenderUser_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetTcpBinding_IServiceChess" type="tns:IServiceChess">
@@ -109,8 +151,50 @@
         <soap12:body use="literal" />
       </wsdl:input>
     </wsdl:operation>
+    <wsdl:operation name="Surrender">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/Surrender" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="Ready">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/Ready" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateColor">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/UpdateColor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
     <wsdl:operation name="MsgCallback">
       <soap12:operation soapAction="http://tempuri.org/IServiceChess/MsgCallback" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeColor">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/ChangeColor" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Start">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/Start" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MoveUser">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/MoveUser" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SurrenderUser">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/SurrenderUser" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

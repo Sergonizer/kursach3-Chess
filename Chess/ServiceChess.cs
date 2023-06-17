@@ -1,9 +1,13 @@
 ﻿using ChessClient;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using System.ServiceModel.Dispatcher;
 using System.Text;
 
 namespace Chess
@@ -11,21 +15,25 @@ namespace Chess
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)] //все пользователи подключаются к одной сессии
     public class ServiceChess : IServiceChess
     {
-        List<ServerUser[]> users = new List<ServerUser[]>(); //создаём список пользователей
-        ServerUser[] curr = new ServerUser[2];
+        List<List<ServerUser>> users = new List<List<ServerUser>>(); //создаём список пользователей
+        List<ServerUser> curr = new List<ServerUser>();
         public int nextId = 1; //переменная для создания id пользователей
 
         public Get Connect(string name)
         {
             int c = 0;
-            int sessid = nextId;
-            if (sessid % 2 == 1)
+            if (curr.Count == 0)
             {
                 Random r = new Random();
                 c = r.Next(2);
             }
             else
-                c = 1 - c;
+            {
+                if (curr[0].Color == PieceColor.White)
+                    c = 1;
+                else
+                    c = 0;
+            }
             ServerUser user = new ServerUser() //создаём нового пользователя и задаём его данные
             {
                 ID = nextId,
@@ -34,14 +42,16 @@ namespace Chess
                 OperationContext = OperationContext.Current
             };
             nextId++;
-            if (curr[(sessid - 1) % 2] != null)
-                SendMsg(": <" + user.Name + "> зашёл в игру", 0, curr[(sessid - 1) % 2].ID); //отправляем сообщение
-            curr[(sessid) % 2] = user; //добавляем пользователя в список
-            if (curr[0] != null && curr[1] != null)
+            curr.Add(user); //добавляем пользователя в сессию
+            if (curr.Count == 2)
             {
-                users.Add((ServerUser[])curr.Clone());
-                curr[0] = null;
-                curr[1] = null;
+                users.Add(new List<ServerUser>(curr));
+                for (int i = 0; i < 2; i++)
+                {
+                    if (curr[i] != user)
+                        SendMsg("<" + user.Name + "> зашёл в игру", 0, curr[i].ID); //отправляем сообщение
+                }
+                curr.Clear();
             }
             Get get;
             get.color = user.Color;
@@ -51,8 +61,22 @@ namespace Chess
 
         public void Disconnect(int id)
         {
-            foreach (var sess in users)
+            GetUser(id).Ready = false;
+            foreach (var user in curr)
             {
+                if (user.ID == id)
+                {
+                    curr.Remove(user);
+                    return;
+                }
+            }
+            foreach (var sess in users.ToList())
+            {
+                if (sess.Count == 0)
+                {
+                    users.Remove(sess);
+                    continue;
+                }
                 for (int i = 0; i < 2; i++)
                 {
                     var user = sess[i];
@@ -60,51 +84,139 @@ namespace Chess
                     {
                         if (user != null)
                         {
-                            SendMsg(": <" + user.Name + "> вышел из игры", 0, sess[1-i].ID); //отправляем сообщение об этом
-                            sess[i] = null;
+                            sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().Surrender(2);
+                            SendMsg("<" + user.Name + "> вышел из игры", 0, sess[1 - i].ID); //отправляем сообщение об этом
+                            int c = 0;
+                            if (curr.Count == 0)
+                            {
+                                Random r = new Random();
+                                c = r.Next(2);
+                            }
+                            else
+                            {
+                                if (curr[0].Color == PieceColor.White)
+                                    c = 1;
+                                else
+                                    c = 0;
+                            }
+                            sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(c == 0 ? PieceColor.White : PieceColor.Black);
+                            curr.Add(sess[1 - i]);
+                            if (curr.Count == 2)
+                            {
+                                users.Add(new List<ServerUser>(curr));
+                                for (int j = 0; j < 2; j++)
+                                {
+                                    if (curr[j] != sess[1 - i])
+                                        SendMsg("<" + sess[1 - i].Name + "> зашёл в игру", 0, curr[j].ID); //отправляем сообщение
+                                    sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(curr[j].Color == PieceColor.White ? PieceColor.Black : PieceColor.White);
+                                }
+                                curr.Clear();
+
+                            }
+                            users.Remove(sess);
+                            sess.Clear();
+                        }
+                    }
+                    if (sess.Count == 0)
+                        return;
+                }
+            }
+        }
+        ServerUser GetUser(int id)
+        {
+            if (curr.Count == 1)
+            {
+                var user = curr[0];
+                if (user != null)
+                {
+                    if (user.ID == id)
+                    {
+                        return user;
+                    }
+                }
+            }
+            foreach (var sess in users) //проходим по всем пользователям
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    var user = sess[i];
+                    if (user != null)
+                    {
+                        if (user.ID == id)
+                        {
+                            return user;
                         }
                     }
                 }
-                if (sess[0] == null && sess[1] == null)
-                    users.Remove(sess);
             }
+            return null;
         }
-
-        public void SendMsg(string msg, int id, int to = 0) //отправление сообщения
+        ServerUser GetOpponent(int id)
         {
-            if (to != 0)
+            foreach (var sess in users) //проходим по всем пользователям
             {
-                foreach (var sess in users) //проходим по всем пользователям
+                for (int i = 0; i < 2; i++)
                 {
-                    if (sess[0].ID == to)
+                    var user = sess[i];
+                    if (user != null)
                     {
-                        sess[0].OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(msg); //отправляем само сообщение
-                    }
-                    if (sess[1].ID == to)
-                    {
-                        sess[1].OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(msg); //отправляем само сообщение
+                        if (user.ID == id)
+                        {
+                            return sess[1 - i];
+                        }
                     }
                 }
+            }
+            return null;
+        }
+        public void SendMsg(string msg, int id, int to) //отправление сообщения
+        {
+            var user = GetUser(id);
+            string answer = DateTime.Now.ToShortTimeString() + ": ";
+            if (to != 0)
+            {
+                var receiver = GetUser(to);
+                answer += msg;
+
+                receiver?.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer); //отправляем само сообщение
                 return;
             }
-            //foreach(var item in users) //проходим по всем пользователям
-            //{
-            //    string answer = DateTime.Now.ToShortTimeString();
+            var opp = GetOpponent(id);
+            if (user != null)
+                answer += "<" + user.Name + ">: ";
+            answer += msg;
 
-            //    var user = users.FirstOrDefault(i=> i.ID == id); //находим нужного пользователя
-            //    if (user != null)
-            //    {
-            //        answer += ": <" + user.Name + ">: ";
-            //    }
-            //    answer += msg;
-
-            //    item.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer); //отправляем само сообщение
-            //}
+            user?.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer); //отправляем само сообщение
+            opp?.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer);
         }
 
-        public void Move(int x, char y) //функция хода
+        public void Move(int id, int x1, int y1, int x2, int y2) //функция хода
         {
-            throw new NotImplementedException();
+            GetOpponent(id).OperationContext.GetCallbackChannel<IServerChessCallback>().Move(x1, y1, x2, y2); //отправляем ход
+        }
+
+        public void Surrender(int id, int val) //сдача
+        {
+            GetOpponent(id).OperationContext.GetCallbackChannel<IServerChessCallback>().Surrender(val); //отправляем сообщение о сдаче
+        }
+
+        void IServiceChess.Ready(int id)
+        {
+            var user = GetUser(id);
+            user.Ready = true;
+            var opp = GetOpponent(id);
+            if (opp != null && opp.Ready)
+            {
+                user.OperationContext.GetCallbackChannel<IServerChessCallback>().Start();
+                opp.OperationContext.GetCallbackChannel<IServerChessCallback>().Start();
+            }
+        }
+
+        void IServiceChess.UpdateColor(int id, PieceColor color)
+        {
+            var user = GetUser(id);
+            if (user != null) 
+                user.Color = color;
         }
     }
 }

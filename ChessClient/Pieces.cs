@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.ServiceModel.Configuration;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,6 +29,27 @@ namespace ChessClient
         {
             x = x_;
             y = y_;
+        }
+        public override string ToString()
+        {
+            switch (x)
+            {
+                case 0:
+                    return "a" + (8 - y).ToString();
+                case 1:
+                    return "b" + (8 - y).ToString();
+                case 2:
+                    return "c" + (8 - y).ToString();
+                case 3:
+                    return "d" + (8 - y).ToString();
+                case 4:
+                    return "e" + (8 - y).ToString();
+                case 5:
+                    return "f" + (8 - y).ToString();
+                case 6:
+                    return "g" + (8 - y).ToString();
+            }
+            return "h" + (8 - y).ToString();
         }
     }
     public struct Search //структура поиска
@@ -63,7 +85,7 @@ namespace ChessClient
         {
             return moved;
         }
-        public void UnMove() //изменяем это состояние 
+        public void UnMove() //чтобы король во время проверки не оказался сдвинут
         {
             moved = false;
         }
@@ -84,7 +106,7 @@ namespace ChessClient
                     {
                         if (board[x][Pos.y].GetPiece() != null && board[x][Pos.y].GetPiece().GetType() != typeof(Rook))
                             break;
-                        if (board[x][Pos.y].GetPiece() != null && board[x][Pos.y].GetPiece().GetType() == typeof(Rook) && !board[x][Pos.y].GetPiece().WasMoved())
+                        if (!test && board[x][Pos.y].GetPiece() != null && board[x][Pos.y].GetPiece().GetType() == typeof(Rook) && !board[x][Pos.y].GetPiece().WasMoved())
                         {
                             Pos finpos;
                             finpos.x = Pos.x + (pos.x - Pos.x) / 2;
@@ -195,7 +217,7 @@ namespace ChessClient
             return ret;
         }
     }
-    class Pawn : Piece //пешка производный класс от класса фигур
+    class Pawn : Piece
     {
         public Pawn(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -259,7 +281,7 @@ namespace ChessClient
         }
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
+            if (PieceColor != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -324,13 +346,13 @@ namespace ChessClient
                     if (Board.IsCheck(opposite))
                         pos.Remove(p);
                     MovePiece(Board.GetBoard(), startpos, true);
-                    Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
+                    if (captured.piece != null) Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
                 }
             }
             return pos;
         }
     }
-    class Rook : Piece //ладья производный класс от класса фигур
+    class Rook : Piece
     {
         public Rook(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -353,7 +375,7 @@ namespace ChessClient
         }
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
+            if (PieceColor != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -380,13 +402,13 @@ namespace ChessClient
                     if (Board.IsCheck(opposite))
                         pos.Remove(p);
                     MovePiece(Board.GetBoard(), startpos, true);
-                    Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
+                    if (captured.piece != null) Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
                 }
             }
             return pos;
         }
     }
-    class Knight : Piece //конь производный класс от класса фигур
+    class Knight : Piece
     {
         public Knight(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -399,7 +421,7 @@ namespace ChessClient
 
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
+            if (PieceColor != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -428,13 +450,13 @@ namespace ChessClient
                     if (Board.IsCheck(opposite))
                         pos.Remove(p);
                     MovePiece(Board.GetBoard(), startpos, true);
-                    Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
+                    if (captured.piece != null) Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
                 }
             }
             return pos;
         }
     }
-    class Bishop : Piece //слон производный класс от класса фигур
+    class Bishop : Piece
     {
         public Bishop(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -457,7 +479,7 @@ namespace ChessClient
         }
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
+            if (PieceColor != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -484,13 +506,13 @@ namespace ChessClient
                     if (Board.IsCheck(opposite))
                         pos.Remove(p);
                     MovePiece(Board.GetBoard(), startpos, true);
-                    Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
+                    if (captured.piece != null) Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
                 }
             }
             return pos;
         }
     }
-    class Queen : Piece //королева производный класс от класса фигур
+    class Queen : Piece
     {
         public Queen(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -524,7 +546,7 @@ namespace ChessClient
         }
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
+            if (PieceColor != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -563,13 +585,13 @@ namespace ChessClient
                     if (Board.IsCheck(opposite))
                         pos.Remove(p);
                     MovePiece(Board.GetBoard(), startpos, true);
-                    Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
+                    if (captured.piece != null) Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
                 }
             }
             return pos;
         }
     }
-    class King : Piece //король производный класс от класса фигур
+    class King : Piece
     {
         public King(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -579,12 +601,12 @@ namespace ChessClient
             BitmapImage bmi = new BitmapImage(new Uri(PieceColor == PieceColor.White ? "pack://application:,,,/resources/whiteking.png" : "pack://application:,,,/resources/blackking.png"));
             image.Source = bmi;
         }
-        private List<Pos> Castling()
+        private List<Pos> Castling(bool test)
         {
             if (moved)
                 return null;
             List<Pos> list = new List<Pos>();
-            bool add = true;
+            bool add = !test;
             Pos currpos = Pos, addpos;
 
             if (Board.GetBoard()[0][Pos.y].GetPiece() == null ||
@@ -606,21 +628,22 @@ namespace ChessClient
                 for (int i = 1; i < 3; i++)
                 {
                     currpos.x = inpos.x - i;
-                    MovePiece(Board.GetBoard(), currpos, true);
+                    Capture captured = MovePiece(Board.GetBoard(), currpos, true);
                     if (Board.IsCheck(PieceColor == PieceColor.White ? PieceColor.Black : PieceColor.White))
                     {
                         add = false;
                         break;
                     }
+                    MovePiece(Board.GetBoard(), inpos, true);
+                    if (captured.piece != null) Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
                 }
-                MovePiece(Board.GetBoard(), inpos, true);
             }
             addpos.x = Pos.x - 2;
             addpos.y = Pos.y;
             if (add)
                 list.Add(addpos);
 
-            add = true;
+            add = !test;
 
             if (Board.GetBoard()[7][Pos.y].GetPiece() == null ||
                 Board.GetBoard()[7][Pos.y].GetPiece() != null && Board.GetBoard()[7][Pos.y].GetPiece().GetType() != typeof(Rook) ||
@@ -641,14 +664,15 @@ namespace ChessClient
                 for (int i = 1; i < 3; i++)
                 {
                     currpos.x = inpos.x + i;
-                    MovePiece(Board.GetBoard(), currpos, true);
+                    Capture captured = MovePiece(Board.GetBoard(), currpos, true);
                     if (Board.IsCheck(PieceColor == PieceColor.White ? PieceColor.Black : PieceColor.White))
                     {
                         add = false;
                         break;
                     }
+                    MovePiece(Board.GetBoard(), inpos, true);
+                    if (captured.piece != null) Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
                 }
-                MovePiece(Board.GetBoard(), inpos, true);
             }
             addpos.x = Pos.x + 2;
             addpos.y = Pos.y;
@@ -658,7 +682,7 @@ namespace ChessClient
         }
         public override List<Pos> PossibleMoves(bool test = false)
         {
-            if (PieceColor != Board.GetTurn() || Board.GetUser() != Board.GetTurn())
+            if (PieceColor != Board.GetTurn())
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
@@ -675,7 +699,7 @@ namespace ChessClient
                 }
             }
 
-            List<Pos> castling = Castling();
+            List<Pos> castling = Castling(test);
             if (castling != null)
                 pos.AddRange(castling);
 
@@ -689,7 +713,7 @@ namespace ChessClient
                     if (Board.IsCheck(opposite))
                         pos.Remove(p);
                     MovePiece(Board.GetBoard(), startpos, true);
-                    Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
+                    if (captured.piece != null) Board.GetBoard()[captured.pos.x][captured.pos.y].SetPiece(captured.piece);
                 }
             }
             return pos;

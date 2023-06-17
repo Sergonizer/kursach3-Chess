@@ -10,10 +10,10 @@ namespace Chess
 {
     public class ServerUser //класс пользователя
     {
-        public int ID {get;set;} //Id
-        public string Name { get;set;} // имя
-
-        public PieceColor Color { get;set;} //цвет фигуры
-        public OperationContext OperationContext { get;set;} //сведения о подключении пользователя
+        public int ID { get; set; } //айди
+        public string Name { get; set; } // имя
+        public bool Ready { get; set; }
+        public PieceColor Color { get; set; } //цвет фигуры
+        public OperationContext OperationContext { get; set; } //сведения о подключении пользователя
     }
 }
