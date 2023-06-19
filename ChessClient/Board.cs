@@ -80,9 +80,6 @@ namespace ChessClient
         }
         public void SetPiece(Piece piece_)
         {
-            if (pos.x == 7 || pos.x == 0)
-                if (pos.y == 7 || pos.y == 0)
-                    ;
             piece = piece_;
             if (piece_ == null)
                 ((Grid)Content).Children.Clear();
@@ -147,7 +144,7 @@ namespace ChessClient
                 ((cell)sender).IsChecked = false;
                 return;
             }
-            if (((cell)sender).GetPiece() != null)
+            if (((cell)sender).GetPiece() != null && GetTurn() == UserColor)
                 foreach (Pos pos in ((cell)sender).GetPiece().PossibleMoves())
                 {
                     System.Windows.Controls.Image dotImage = new System.Windows.Controls.Image();
@@ -179,17 +176,18 @@ namespace ChessClient
                     board[i][j].IsEnabled = val;
             }
         }
-        public bool Move(cell start, cell end, bool thisplayer = true)
+        public bool Move(cell start, cell end, bool thisplayer = true, int prom = -1)
         {
             bool ret = false;
             if (thisplayer && start.GetPiece().GetPieceColor() != UserColor)
                 return ret;
-            if (end != null && (start).GetPiece() != null)
+            if (end != null && start.GetPiece() != null)
             {
                 if (start.GetPiece().PossibleMoves().Contains(end.GetPos()))
                 {
+                    Client.CancelDraw(ID);
                     string move = "";
-                    if (start.GetPiece().GetType() == typeof(King))
+                    if (start.GetPiece().GetType() == typeof(King) && Math.Abs(end.GetPos().x - start.GetPos().x) == 2)
                     {
                         if (end.GetPos().x - start.GetPos().x == 2)
                             move = "0-0";
@@ -202,7 +200,6 @@ namespace ChessClient
                     }
                     if (start.GetPiece().GetPieceColor() == PieceColor.White)
                     {
-
                         LbMoves.Items.Add((LbMoves.Items.Count + 1).ToString() + ". " + move);
                     }
                     else
@@ -212,7 +209,7 @@ namespace ChessClient
                     Capture captured = start.GetPiece().MovePiece(board, end.GetPos());
                     if (captured.piece != null)
                     {
-                        string str = ((string)LbMoves.Items[LbMoves.Items.Count - 1]);
+                        string str = (string)LbMoves.Items[LbMoves.Items.Count - 1];
                         int i = str.LastIndexOf("-");
                         if (i != -1)
                             LbMoves.Items[LbMoves.Items.Count - 1] = str.Remove(i, 1).Insert(i, ":");
@@ -225,16 +222,28 @@ namespace ChessClient
                         pieces[1] = new Rook(this, end.GetPos().x, end.GetPos().y, end.GetPiece().GetPieceColor());
                         pieces[2] = new Bishop(this, end.GetPos().x, end.GetPos().y, end.GetPiece().GetPieceColor());
                         pieces[3] = new Knight(this, end.GetPos().x, end.GetPos().y, end.GetPiece().GetPieceColor());
-                        Rect rect = new Rect(end.PointToScreen(new System.Windows.Point(0, 0)), end.PointToScreen(new System.Windows.Point(end.ActualWidth, end.ActualHeight)));
-                        Promote promote = new Promote(rect, end.GetPiece().GetPieceColor() == PieceColor.White ? promote_white : promote_black);
-                        promote.ShowDialog();
-
-                        end.SetPiece(null);
-                        end.SetPiece(pieces[promote.id]);
+                        if (prom == -1)
+                        {
+                            Rect rect = new Rect(end.PointToScreen(new System.Windows.Point(0, 0)), end.PointToScreen(new System.Windows.Point(end.ActualWidth, end.ActualHeight)));
+                            Promote promote = new Promote(rect, end.GetPiece().GetPieceColor() == PieceColor.White ? promote_white : promote_black);
+                            promote.ShowDialog();
+                            end.SetPiece(null);
+                            end.SetPiece(pieces[promote.id]);
+                            prom = promote.id;
+                        }
+                        else
+                        {
+                            end.SetPiece(null);
+                            end.SetPiece(pieces[prom]);
+                        }
+                        LbMoves.Items[LbMoves.Items.Count - 1] = LbMoves.Items[LbMoves.Items.Count - 1].ToString() + end.ToString()[0];
                     }
                     PieceColor opposite = (end.GetPiece().GetPieceColor() == PieceColor.White) ? PieceColor.Black : PieceColor.White;
                     if (IsCheck(end.GetPiece().GetPieceColor()))
+                    {
                         FindKing(opposite).Background = System.Windows.Media.Brushes.Red;
+                        LbMoves.Items[LbMoves.Items.Count - 1] = LbMoves.Items[LbMoves.Items.Count - 1].ToString() + "+";
+                    }
                     cell king = FindKing(end.GetPiece().GetPieceColor());
                     if (king.Background == System.Windows.Media.Brushes.Red)
                         if (!IsCheck(opposite))
@@ -242,7 +251,7 @@ namespace ChessClient
                     if (king == end && (start).Background == System.Windows.Media.Brushes.Red)
                         if (!IsCheck(opposite))
                             (start).Background = ((start).GetPos().x + (start).GetPos().y) % 2 == 1 ? System.Windows.Media.Brushes.Gray : System.Windows.Media.Brushes.White;
-                    Client.Move(ID, (start).GetPos().x, (start).GetPos().y, end.GetPos().x, end.GetPos().y);
+                    Client.Move(ID, (start).GetPos().x, (start).GetPos().y, end.GetPos().x, end.GetPos().y, prom);
                     SwapTurn();
                     Turn.Source = GetTurn() == PieceColor.White ? new BitmapImage(new Uri("pack://application:,,,/resources/whitequeen.png")) :
                         new BitmapImage(new Uri("pack://application:,,,/resources/blackqueen.png"));
@@ -252,10 +261,15 @@ namespace ChessClient
                         if (checkStaleMate == CheckStaleMate.Checkmate)
                         {
                             MessageBox.Show((end.GetPiece().GetPieceColor() == PieceColor.White ? "Белые" : "Чёрные") + " поставили мат! Игра окончена!");
+                            LbMoves.Items[LbMoves.Items.Count - 1] = LbMoves.Items[LbMoves.Items.Count - 1].ToString() + "х";
+                            string text = end.GetPiece().GetPieceColor() == PieceColor.White ? "1 - 0" : "0 - 1";
+                            LbMoves.Items.Add(text);
                         }
                         else if (checkStaleMate == CheckStaleMate.Stalemate)
                         {
                             MessageBox.Show("Пат! Игра окончена!");
+                            string text = "0.5 - 0.5";
+                            LbMoves.Items.Add(text);
                         }
                     }
                 }
@@ -348,7 +362,7 @@ namespace ChessClient
         {
             turn = (turn == PieceColor.White ? PieceColor.Black : PieceColor.White);
         }
-        public void SetClient(ServiceChess.ServiceChessClient client, int id) //меяем ход
+        public void SetClient(ServiceChess.ServiceChessClient client, int id) //меняем ход
         {
             Client = client;
             ID = id;
@@ -403,6 +417,7 @@ namespace ChessClient
             GridBoard = gridBoard;
             Turn = turn;
             LbMoves = lbMoves;
+            LbMoves.Items.Clear();
             double w = gridBoard.Width, h = gridBoard.Height;
             for (int i = 0; i < 8; i++)
             {

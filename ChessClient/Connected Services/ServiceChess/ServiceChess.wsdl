@@ -60,6 +60,12 @@
   <wsdl:message name="IServiceChess_Ready_InputMessage">
     <wsdl:part name="parameters" element="tns:Ready" />
   </wsdl:message>
+  <wsdl:message name="IServiceChess_Draw_InputMessage">
+    <wsdl:part name="parameters" element="tns:Draw" />
+  </wsdl:message>
+  <wsdl:message name="IServiceChess_CancelDraw_InputMessage">
+    <wsdl:part name="parameters" element="tns:CancelDraw" />
+  </wsdl:message>
   <wsdl:message name="IServiceChess_UpdateColor_InputMessage">
     <wsdl:part name="parameters" element="tns:UpdateColor" />
   </wsdl:message>
@@ -71,6 +77,12 @@
   </wsdl:message>
   <wsdl:message name="IServiceChess_Start_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:Start" />
+  </wsdl:message>
+  <wsdl:message name="IServiceChess_DrawOffer_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DrawOffer" />
+  </wsdl:message>
+  <wsdl:message name="IServiceChess_DrawUser_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DrawUser" />
   </wsdl:message>
   <wsdl:message name="IServiceChess_MoveUser_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:MoveUser" />
@@ -99,6 +111,12 @@
     <wsdl:operation name="Ready">
       <wsdl:input wsaw:Action="http://tempuri.org/IServiceChess/Ready" message="tns:IServiceChess_Ready_InputMessage" />
     </wsdl:operation>
+    <wsdl:operation name="Draw">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServiceChess/Draw" message="tns:IServiceChess_Draw_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelDraw">
+      <wsdl:input wsaw:Action="http://tempuri.org/IServiceChess/CancelDraw" message="tns:IServiceChess_CancelDraw_InputMessage" />
+    </wsdl:operation>
     <wsdl:operation name="UpdateColor">
       <wsdl:input wsaw:Action="http://tempuri.org/IServiceChess/UpdateColor" message="tns:IServiceChess_UpdateColor_InputMessage" />
     </wsdl:operation>
@@ -110,6 +128,12 @@
     </wsdl:operation>
     <wsdl:operation name="Start">
       <wsdl:output wsaw:Action="http://tempuri.org/IServiceChess/Start" message="tns:IServiceChess_Start_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DrawOffer">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServiceChess/DrawOffer" message="tns:IServiceChess_DrawOffer_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DrawUser">
+      <wsdl:output wsaw:Action="http://tempuri.org/IServiceChess/DrawUser" message="tns:IServiceChess_DrawUser_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation name="MoveUser">
       <wsdl:output wsaw:Action="http://tempuri.org/IServiceChess/MoveUser" message="tns:IServiceChess_MoveUser_OutputCallbackMessage" />
@@ -163,6 +187,18 @@
         <soap12:body use="literal" />
       </wsdl:input>
     </wsdl:operation>
+    <wsdl:operation name="Draw">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/Draw" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="CancelDraw">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/CancelDraw" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
     <wsdl:operation name="UpdateColor">
       <soap12:operation soapAction="http://tempuri.org/IServiceChess/UpdateColor" style="document" />
       <wsdl:input>
@@ -183,6 +219,18 @@
     </wsdl:operation>
     <wsdl:operation name="Start">
       <soap12:operation soapAction="http://tempuri.org/IServiceChess/Start" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DrawOffer">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/DrawOffer" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DrawUser">
+      <soap12:operation soapAction="http://tempuri.org/IServiceChess/DrawUser" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

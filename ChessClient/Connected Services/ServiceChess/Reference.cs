@@ -107,10 +107,10 @@ namespace ChessClient.ServiceChess {
         System.Threading.Tasks.Task SendMsgAsync(string msg, int id, int to);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/Move")]
-        void Move(int id, int x1, int y1, int x2, int y2);
+        void Move(int id, int x1, int y1, int x2, int y2, int promote);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/Move")]
-        System.Threading.Tasks.Task MoveAsync(int id, int x1, int y1, int x2, int y2);
+        System.Threading.Tasks.Task MoveAsync(int id, int x1, int y1, int x2, int y2, int promote);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/Surrender")]
         void Surrender(int id, int val);
@@ -123,6 +123,18 @@ namespace ChessClient.ServiceChess {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/Ready")]
         System.Threading.Tasks.Task ReadyAsync(int id);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/Draw")]
+        void Draw(int id);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/Draw")]
+        System.Threading.Tasks.Task DrawAsync(int id);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/CancelDraw")]
+        void CancelDraw(int id);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/CancelDraw")]
+        System.Threading.Tasks.Task CancelDrawAsync(int id);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/UpdateColor")]
         void UpdateColor(int id, ChessClient.ServiceChess.PieceColor color);
@@ -143,8 +155,14 @@ namespace ChessClient.ServiceChess {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/Start")]
         void Start();
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/DrawOffer")]
+        void DrawOffer();
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/DrawUser")]
+        void DrawUser();
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/MoveUser")]
-        void MoveUser(int x1, int y1, int x2, int y2);
+        void MoveUser(int x1, int y1, int x2, int y2, int promote);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IServiceChess/SurrenderUser")]
         void SurrenderUser(int val);
@@ -202,12 +220,12 @@ namespace ChessClient.ServiceChess {
             return base.Channel.SendMsgAsync(msg, id, to);
         }
         
-        public void Move(int id, int x1, int y1, int x2, int y2) {
-            base.Channel.Move(id, x1, y1, x2, y2);
+        public void Move(int id, int x1, int y1, int x2, int y2, int promote) {
+            base.Channel.Move(id, x1, y1, x2, y2, promote);
         }
         
-        public System.Threading.Tasks.Task MoveAsync(int id, int x1, int y1, int x2, int y2) {
-            return base.Channel.MoveAsync(id, x1, y1, x2, y2);
+        public System.Threading.Tasks.Task MoveAsync(int id, int x1, int y1, int x2, int y2, int promote) {
+            return base.Channel.MoveAsync(id, x1, y1, x2, y2, promote);
         }
         
         public void Surrender(int id, int val) {
@@ -224,6 +242,22 @@ namespace ChessClient.ServiceChess {
         
         public System.Threading.Tasks.Task ReadyAsync(int id) {
             return base.Channel.ReadyAsync(id);
+        }
+        
+        public void Draw(int id) {
+            base.Channel.Draw(id);
+        }
+        
+        public System.Threading.Tasks.Task DrawAsync(int id) {
+            return base.Channel.DrawAsync(id);
+        }
+        
+        public void CancelDraw(int id) {
+            base.Channel.CancelDraw(id);
+        }
+        
+        public System.Threading.Tasks.Task CancelDrawAsync(int id) {
+            return base.Channel.CancelDrawAsync(id);
         }
         
         public void UpdateColor(int id, ChessClient.ServiceChess.PieceColor color) {

@@ -78,6 +78,7 @@
         </Grid>
         <Image Name="Turn" HorizontalAlignment="Left" Height="40" Margin="370,25,0,0" VerticalAlignment="Top" Width="40" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
         <Label Content="Current turn:" HorizontalAlignment="Left" Margin="265,25,0,0" VerticalAlignment="Top" Height="40" Width="105" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="17"/>
-        <Button x:Name="btnSurr" Content="Surrender" Margin="520,0,0,0" Click="Surrender" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" Width="220" Background="#4CFF0000" BorderBrush="Black" IsEnabled="False"/>
+        <Button x:Name="btnSurr" Content="Surrender" Margin="520,0,0,0" Click="Surrender" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" Width="110" Background="#4CFF0000" BorderBrush="Black" IsEnabled="False"/>
+        <Button x:Name="btnDraw" Content="Draw" Margin="630,0,0,0" Click="Draw" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" Width="110" Background="#4CFFD200" BorderBrush="Black" IsEnabled="False"/>
     </Grid>
 </Window>

@@ -85,7 +85,7 @@ namespace Chess
                         if (user != null)
                         {
                             sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().Surrender(2);
-                            SendMsg("<" + user.Name + "> вышел из игры", 0, sess[1 - i].ID); //отправляем сообщение об этом
+                            SendMsg(user.Name + " вышел из игры", 0, sess[1 - i].ID); //отправляем сообщение об этом
                             int c = 0;
                             if (curr.Count == 0)
                             {
@@ -107,7 +107,7 @@ namespace Chess
                                 for (int j = 0; j < 2; j++)
                                 {
                                     if (curr[j] != sess[1 - i])
-                                        SendMsg("<" + sess[1 - i].Name + "> зашёл в игру", 0, curr[j].ID); //отправляем сообщение
+                                        SendMsg(sess[1 - i].Name + " зашёл в игру", 0, curr[j].ID); //отправляем сообщение
                                     sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(curr[j].Color == PieceColor.White ? PieceColor.Black : PieceColor.White);
                                 }
                                 curr.Clear();
@@ -189,12 +189,6 @@ namespace Chess
             user?.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer); //отправляем само сообщение
             opp?.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer);
         }
-
-        public void Move(int id, int x1, int y1, int x2, int y2) //функция хода
-        {
-            GetOpponent(id).OperationContext.GetCallbackChannel<IServerChessCallback>().Move(x1, y1, x2, y2); //отправляем ход
-        }
-
         public void Surrender(int id, int val) //сдача
         {
             GetOpponent(id).OperationContext.GetCallbackChannel<IServerChessCallback>().Surrender(val); //отправляем сообщение о сдаче
@@ -217,6 +211,31 @@ namespace Chess
             var user = GetUser(id);
             if (user != null) 
                 user.Color = color;
+        }
+
+        void IServiceChess.Draw(int id)
+        {
+            var user = GetUser(id);
+            user.Draw = true;
+            var opp = GetOpponent(id);
+            if (opp != null && !opp.Draw)
+                opp.OperationContext.GetCallbackChannel<IServerChessCallback>().DrawOffer();
+            else if (opp != null && opp.Draw)
+            {
+                opp.OperationContext.GetCallbackChannel<IServerChessCallback>().Draw();
+                user.OperationContext.GetCallbackChannel<IServerChessCallback>().Draw();
+            }
+        }
+
+        void IServiceChess.CancelDraw(int id)
+        {
+            var user = GetUser(id);
+            user.Draw = false;
+        }
+
+        void IServiceChess.Move(int id, int x1, int y1, int x2, int y2, int promote)
+        {
+            GetOpponent(id).OperationContext.GetCallbackChannel<IServerChessCallback>().Move(x1, y1, x2, y2, promote); //отправляем ход
         }
     }
 }

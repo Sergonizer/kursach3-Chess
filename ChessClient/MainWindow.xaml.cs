@@ -34,6 +34,7 @@ namespace ChessClient
             board.Draw(gridBoard, Turn, lbMoves);
             board.SetEnabled(false);
             btnSurr.IsEnabled = false;
+            btnDraw.IsEnabled = false;
             client = new ServiceChess.ServiceChessClient(new System.ServiceModel.InstanceContext(this));
         }
         void ConnectUser()
@@ -60,6 +61,7 @@ namespace ChessClient
                 isConnected = false;
                 board.SetEnabled(false);
                 btnSurr.IsEnabled = false;
+                btnDraw.IsEnabled = false;
             }
         }
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -89,9 +91,9 @@ namespace ChessClient
             ChangeColor((PieceColor)color);
             client.UpdateColor(ID, color);
         }
-        void ServiceChess.IServiceChessCallback.MoveUser(int x1, int y1, int x2, int y2)
+        void ServiceChess.IServiceChessCallback.MoveUser(int x1, int y1, int x2, int y2, int promote)
         {
-            board.Move(board.GetBoard()[x1][y1], board.GetBoard()[x2][y2], false);
+            board.Move(board.GetBoard()[x1][y1], board.GetBoard()[x2][y2], false, promote);
         }
 
         void ServiceChess.IServiceChessCallback.SurrenderUser(int val)
@@ -103,8 +105,11 @@ namespace ChessClient
                 else if (val == 2)
                     MessageBox.Show("Соперник вышел! Игра окончена!");
             }
+            string text = board.GetUser() == PieceColor.White ? "1 - 0" : "0 - 1";
+            lbMoves.Items.Add(text);
             board.SetEnabled(false);
             btnSurr.IsEnabled = false;
+            btnDraw.IsEnabled = false;
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -125,6 +130,7 @@ namespace ChessClient
             ChangeColor(board.GetUser());
             board.Draw(gridBoard, Turn, lbMoves);
             btnSurr.IsEnabled = true;
+            btnDraw.IsEnabled = true;
             board.SetEnabled(true);
         }
 
@@ -132,7 +138,33 @@ namespace ChessClient
         {
             board.SetEnabled(false);
             btnSurr.IsEnabled = false;
+            btnDraw.IsEnabled = false;
             client.Surrender(ID, 1);
+        }
+
+        private void Draw(object sender, RoutedEventArgs e)
+        {
+            client.Draw(ID);
+        }
+
+        void ServiceChess.IServiceChessCallback.DrawOffer()
+        {
+            MessageBox.Show("Соперник предложил ничью!");
+        }
+
+        void ServiceChess.IServiceChessCallback.DrawUser()
+        {
+            MessageBox.Show("Ничья! Игра окончена!");
+            string text = "0.5 - 0.5 | 0.5 - 0.5";
+            lbMoves.Items.Add(text);
+            board.SetEnabled(false);
+            btnSurr.IsEnabled = false;
+            btnDraw.IsEnabled = false;
+        }
+
+        public void MoveUser(int x1, int y1, int x2, int y2)
+        {
+            throw new NotImplementedException();
         }
     }
 }

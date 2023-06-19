@@ -145,7 +145,7 @@ namespace ChessClient
                 {
                     if (pos.x != Pos.x && board[pos.x][pos.y].GetPiece() == null && board[pos.x][pos.y - 1].GetPiece() != null && board[pos.x][pos.y - 1].GetPiece().GetType() == typeof(Pawn))
                     {
-                        Capture enpassanted = new Capture(new Pos(pos.x, pos.y + 1), board[pos.x][pos.y - 1].GetPiece());
+                        Capture enpassanted = new Capture(new Pos(pos.x, pos.y - 1), board[pos.x][pos.y - 1].GetPiece());
 
                         board[pos.x][pos.y - 1].SetPiece(null);
                         board[pos.x][pos.y].SetPiece(this);
@@ -644,6 +644,7 @@ namespace ChessClient
                 list.Add(addpos);
 
             add = !test;
+            currpos = Pos;
 
             if (Board.GetBoard()[7][Pos.y].GetPiece() == null ||
                 Board.GetBoard()[7][Pos.y].GetPiece() != null && Board.GetBoard()[7][Pos.y].GetPiece().GetType() != typeof(Rook) ||
