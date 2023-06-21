@@ -104,9 +104,7 @@ namespace ChessClient
         private PieceColor UserColor;
         private ServiceChess.ServiceChessClient Client;
         private int ID;
-        Grid GridBoard;
-        System.Windows.Controls.Image Turn;
-        ListBox LbMoves;
+        MainWindow Window;
         BitmapImage bmi = new BitmapImage(new Uri("pack://application:,,,/resources/dot.png")); //ставим картинки
         cell[][] board = new cell[8][];
         bool moved = false;
@@ -156,7 +154,7 @@ namespace ChessClient
         private void Cell_Uncheck(object sender, RoutedEventArgs e)
         {
             ((cell)sender).SetCheckState(false);
-            var new_cell = GridBoard.Children.OfType<cell>().FirstOrDefault(r => r.IsChecked.HasValue && r.IsChecked.Value);
+            var new_cell = Window.gridBoard.Children.OfType<cell>().FirstOrDefault(r => r.IsChecked.HasValue && r.IsChecked.Value);
             if (((cell)sender).GetPiece() != null)
             {
                 foreach (Pos pos in ((cell)sender).GetPiece().PossibleMoves())
@@ -200,19 +198,19 @@ namespace ChessClient
                     }
                     if (start.GetPiece().GetPieceColor() == PieceColor.White)
                     {
-                        LbMoves.Items.Add((LbMoves.Items.Count + 1).ToString() + ". " + move);
+                        Window.lbMoves.Items.Add((Window.lbMoves.Items.Count + 1).ToString() + ". " + move);
                     }
                     else
                     {
-                        LbMoves.Items[LbMoves.Items.Count - 1] = LbMoves.Items[LbMoves.Items.Count - 1].ToString() + " | " + move;
+                        Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = Window.lbMoves.Items[Window.lbMoves.Items.Count - 1].ToString() + " | " + move;
                     }
                     Capture captured = start.GetPiece().MovePiece(board, end.GetPos());
                     if (captured.piece != null)
                     {
-                        string str = (string)LbMoves.Items[LbMoves.Items.Count - 1];
+                        string str = (string)Window.lbMoves.Items[Window.lbMoves.Items.Count - 1];
                         int i = str.LastIndexOf("-");
                         if (i != -1)
-                            LbMoves.Items[LbMoves.Items.Count - 1] = str.Remove(i, 1).Insert(i, ":");
+                            Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = str.Remove(i, 1).Insert(i, ":");
                     }
                     ret = true;
                     if (end.GetPiece().GetType() == typeof(Pawn) && end.GetPos().y == (end.GetPiece().GetPieceColor() == PieceColor.White ? 0 : 7))
@@ -236,13 +234,13 @@ namespace ChessClient
                             end.SetPiece(null);
                             end.SetPiece(pieces[prom]);
                         }
-                        LbMoves.Items[LbMoves.Items.Count - 1] = LbMoves.Items[LbMoves.Items.Count - 1].ToString() + end.ToString()[0];
+                        Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = Window.lbMoves.Items[Window.lbMoves.Items.Count - 1].ToString() + end.ToString()[0];
                     }
                     PieceColor opposite = (end.GetPiece().GetPieceColor() == PieceColor.White) ? PieceColor.Black : PieceColor.White;
                     if (IsCheck(end.GetPiece().GetPieceColor()))
                     {
                         FindKing(opposite).Background = System.Windows.Media.Brushes.Red;
-                        LbMoves.Items[LbMoves.Items.Count - 1] = LbMoves.Items[LbMoves.Items.Count - 1].ToString() + "+";
+                        Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = Window.lbMoves.Items[Window.lbMoves.Items.Count - 1].ToString() + "+";
                     }
                     cell king = FindKing(end.GetPiece().GetPieceColor());
                     if (king.Background == System.Windows.Media.Brushes.Red)
@@ -253,23 +251,30 @@ namespace ChessClient
                             (start).Background = ((start).GetPos().x + (start).GetPos().y) % 2 == 1 ? System.Windows.Media.Brushes.Gray : System.Windows.Media.Brushes.White;
                     Client.Move(ID, (start).GetPos().x, (start).GetPos().y, end.GetPos().x, end.GetPos().y, prom);
                     SwapTurn();
-                    Turn.Source = GetTurn() == PieceColor.White ? new BitmapImage(new Uri("pack://application:,,,/resources/whitequeen.png")) :
+                    Window.Turn.Source = GetTurn() == PieceColor.White ? new BitmapImage(new Uri("pack://application:,,,/resources/whitequeen.png")) :
                         new BitmapImage(new Uri("pack://application:,,,/resources/blackqueen.png"));
                     if (GetTurn() != end.GetPiece().GetPieceColor())
                     {
                         CheckStaleMate checkStaleMate = IsMate(end.GetPiece().GetPieceColor());
                         if (checkStaleMate == CheckStaleMate.Checkmate)
                         {
-                            MessageBox.Show((end.GetPiece().GetPieceColor() == PieceColor.White ? "Белые" : "Чёрные") + " поставили мат! Игра окончена!");
-                            LbMoves.Items[LbMoves.Items.Count - 1] = LbMoves.Items[LbMoves.Items.Count - 1].ToString() + "х";
+                            string str = (string)Window.lbMoves.Items[Window.lbMoves.Items.Count - 1];
+                            int i = str.LastIndexOf("+");
+                            if (i != -1)
+                                Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = str.Remove(i, 1).Insert(i, "x");
                             string text = end.GetPiece().GetPieceColor() == PieceColor.White ? "1 - 0" : "0 - 1";
-                            LbMoves.Items.Add(text);
+                            Window.lbMoves.Items.Add(text);
+                            SwapTurn();
+                            MessageBox.Show((end.GetPiece().GetPieceColor() == PieceColor.White ? "Белые" : "Чёрные") + " поставили мат! Игра окончена!");
+                            Window.Enable(false);
                         }
                         else if (checkStaleMate == CheckStaleMate.Stalemate)
                         {
-                            MessageBox.Show("Пат! Игра окончена!");
                             string text = "0.5 - 0.5";
-                            LbMoves.Items.Add(text);
+                            Window.lbMoves.Items.Add(text);
+                            SwapTurn();
+                            MessageBox.Show("Пат! Игра окончена!");
+                            Window.Enable(false);
                         }
                     }
                 }
@@ -412,13 +417,11 @@ namespace ChessClient
             board[6][7].SetPiece(new Knight(this, 6, 7, PieceColor.White));
             board[7][7].SetPiece(new Rook(this, 7, 7, PieceColor.White));
         }
-        public void Draw(Grid gridBoard, System.Windows.Controls.Image turn, ListBox lbMoves) //отрисовка фигур
+        public void Draw(MainWindow window) //отрисовка фигур
         {
-            GridBoard = gridBoard;
-            Turn = turn;
-            LbMoves = lbMoves;
-            LbMoves.Items.Clear();
-            double w = gridBoard.Width, h = gridBoard.Height;
+            Window = window;
+            Window.lbMoves.Items.Clear();
+            double w = Window.gridBoard.Width, h = Window.gridBoard.Height;
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
@@ -428,14 +431,14 @@ namespace ChessClient
                         board[i][j].SetSize(System.Convert.ToInt32(Math.Round(w / 8)), System.Convert.ToInt32(Math.Round(h / 8)));
                         Grid.SetRow(board[i][j], j);
                         Grid.SetColumn(board[i][j], i);
-                        gridBoard.Children.Add(board[i][j]);
+                        Window.gridBoard.Children.Add(board[i][j]);
                     }
                     else
                     {
                         board[i][j].SetSize(System.Convert.ToInt32(Math.Round(w / 8)), System.Convert.ToInt32(Math.Round(h / 8)));
                         Grid.SetRow(board[i][j], 7 - j);
                         Grid.SetColumn(board[i][j], 7 - i);
-                        gridBoard.Children.Add(board[i][j]);
+                        Window.gridBoard.Children.Add(board[i][j]);
                     }
                 }
             }

@@ -49,7 +49,7 @@ namespace Chess
                 for (int i = 0; i < 2; i++)
                 {
                     if (curr[i] != user)
-                        SendMsg("<" + user.Name + "> зашёл в игру", 0, curr[i].ID); //отправляем сообщение
+                        SendMsg(user.Name + " зашёл в игру", 0, curr[i].ID); //отправляем сообщение
                 }
                 curr.Clear();
             }
@@ -86,6 +86,7 @@ namespace Chess
                         {
                             sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().Surrender(2);
                             SendMsg(user.Name + " вышел из игры", 0, sess[1 - i].ID); //отправляем сообщение об этом
+                            sess[1 - i].Ready = false;
                             int c = 0;
                             if (curr.Count == 0)
                             {
@@ -99,22 +100,26 @@ namespace Chess
                                 else
                                     c = 0;
                             }
-                            sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(c == 0 ? PieceColor.White : PieceColor.Black);
+                            sess[1 - i].Color = c == 0 ? PieceColor.White : PieceColor.Black;
+                            sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(sess[1 - i].Color);
                             curr.Add(sess[1 - i]);
-                            if (curr.Count == 2)
-                            {
-                                users.Add(new List<ServerUser>(curr));
-                                for (int j = 0; j < 2; j++)
-                                {
-                                    if (curr[j] != sess[1 - i])
-                                        SendMsg(sess[1 - i].Name + " зашёл в игру", 0, curr[j].ID); //отправляем сообщение
-                                    sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(curr[j].Color == PieceColor.White ? PieceColor.Black : PieceColor.White);
-                                }
-                                curr.Clear();
-
-                            }
                             users.Remove(sess);
                             sess.Clear();
+                            if (curr.Count == 2)
+                            {
+                                SendMsg(curr[1].Name + " зашёл в игру", 0, curr[0].ID); //отправляем сообщение
+                                curr[1].Color = c == 0 ? PieceColor.White : PieceColor.Black;
+                                curr[1].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(curr[1].Color);
+                                curr[1].Ready = true;
+                                var opp = curr[0];
+                                if (opp != null && opp.Ready)
+                                {
+                                    curr[0].OperationContext.GetCallbackChannel<IServerChessCallback>().Start();
+                                    curr[1].OperationContext.GetCallbackChannel<IServerChessCallback>().Start();
+                                }
+                                users.Add(new List<ServerUser>(curr));
+                                curr.Clear();
+                            }
                         }
                     }
                     if (sess.Count == 0)
@@ -132,6 +137,20 @@ namespace Chess
                     if (user.ID == id)
                     {
                         return user;
+                    }
+                }
+            }
+            if (curr.Count == 2)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    var user = curr[i];
+                    if (user != null)
+                    {
+                        if (user.ID == id)
+                        {
+                            return user;
+                        }
                     }
                 }
             }
@@ -153,6 +172,20 @@ namespace Chess
         }
         ServerUser GetOpponent(int id)
         {
+            if (curr.Count == 2)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    var user = curr[i];
+                    if (user != null)
+                    {
+                        if (user.ID == id)
+                        {
+                            return curr[1-i];
+                        }
+                    }
+                }
+            }
             foreach (var sess in users) //проходим по всем пользователям
             {
                 for (int i = 0; i < 2; i++)
@@ -209,7 +242,7 @@ namespace Chess
         void IServiceChess.UpdateColor(int id, PieceColor color)
         {
             var user = GetUser(id);
-            if (user != null) 
+            if (user != null)
                 user.Color = color;
         }
 

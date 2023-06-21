@@ -7,8 +7,8 @@
         mc:Ignorable="d"
         ResizeMode="CanMinimize"
         SizeToContent="WidthAndHeight"
-        Title="MainWindow" Height="460" Width="750" Loaded="Window_Loaded" Closing="Window_Closing" MinWidth="750" MinHeight="460" Icon="/resources/whiteknight.png">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        Title="Chess" Loaded="Window_Loaded" Closing="Window_Closing" Icon="/resources/whiteknight.png" MinWidth="750" MinHeight="455" Height="455" Width="750">
+    <Grid MinWidth="750" MinHeight="455" Height="455" Margin="0,0,0,-6">
         <Grid.Background>
             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                 <GradientStop Color="#FFF7B4B4"/>
@@ -18,10 +18,10 @@
             </LinearGradientBrush>
         </Grid.Background>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="750"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="460"/>
+            <RowDefinition Height="455"/>
         </Grid.RowDefinitions>
         <TextBox x:Name="tbUserName" TextWrapping="Wrap" Margin="10,0,0,0" HorizontalAlignment="Left" Width="250" Height="20" VerticalAlignment="Top"/>
         <TextBlock IsHitTestVisible="False" Text=" Имя пользователя" MaxHeight="100" Margin="10,0,0,0" Foreground="DarkGray" HorizontalAlignment="Left" Width="250" Height="20" VerticalAlignment="Top">
@@ -52,9 +52,8 @@
                 </Style>
             </TextBlock.Style>
         </TextBlock>
-        <Label Content="Connect to the server!" Width="320" Height="320" Margin="420,25,0,115" HorizontalAlignment="Left" Background="#4CFFFFFF" FontSize="24" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         <Rectangle x:Name="rectBoard" HorizontalAlignment="Left" Height="320" Margin="420,25,0,0" Stroke="Black" VerticalAlignment="Top" Width="320"/>
-        <Grid x:Name="gridBoard" Width="320" Height="320" Margin="420,25,0,115" HorizontalAlignment="Left">
+        <Grid x:Name="gridBoard" Width="320" Height="320" Margin="420,25,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40" />
                 <RowDefinition Height="40" />
