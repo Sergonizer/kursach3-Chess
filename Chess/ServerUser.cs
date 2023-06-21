@@ -11,7 +11,7 @@ namespace Chess
     public class ServerUser //класс пользователя
     {
         public int ID { get; set; } //айди
-        public string Name { get; set; } // имя
+        public string Name { get; set; } //имя
         public bool Ready { get; set; } //готовность
         public bool Draw { get; set; } //готов к ничьей
         public PieceColor Color { get; set; } //цвет фигуры

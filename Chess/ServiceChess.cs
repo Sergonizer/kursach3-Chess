@@ -102,6 +102,7 @@ namespace Chess
                             }
                             sess[1 - i].Color = c == 0 ? PieceColor.White : PieceColor.Black;
                             sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(sess[1 - i].Color);
+                            sess[1 - i].Ready = true;
                             curr.Add(sess[1 - i]);
                             users.Remove(sess);
                             sess.Clear();
@@ -110,7 +111,6 @@ namespace Chess
                                 SendMsg(curr[1].Name + " зашёл в игру", 0, curr[0].ID); //отправляем сообщение
                                 curr[1].Color = c == 0 ? PieceColor.White : PieceColor.Black;
                                 curr[1].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(curr[1].Color);
-                                curr[1].Ready = true;
                                 var opp = curr[0];
                                 if (opp != null && opp.Ready)
                                 {
