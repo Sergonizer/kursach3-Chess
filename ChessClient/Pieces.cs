@@ -52,17 +52,17 @@ namespace ChessClient
             return "h" + (8 - y).ToString();
         }
     }
-    public struct Search //структура поиска
+    public struct Search //структура для поиска фигуры по условию
     {
         public bool add;
         public bool stop;
     }
-    public struct Capture //структура захвата
+    public struct Capture //структура для взятой фигуры
     {
         public Pos pos;
         public Piece piece;
 
-        public Capture(Pos pos_, Piece piece_) //конструктор
+        public Capture(Pos pos_, Piece piece_)
         {
             pos = pos_;
             piece = piece_;
@@ -75,13 +75,13 @@ namespace ChessClient
     }
     public abstract class Piece //класс типа фигуры
     {
-        public Board Board;
-        public PieceColor PieceColor;
-        protected System.Windows.Controls.Image image = new System.Windows.Controls.Image();
-        public Pos Pos;
-        public bool moved = false;
+        protected Board Board;
+        protected PieceColor PieceColor;
+        protected System.Windows.Controls.Image image = new System.Windows.Controls.Image(); //изображение фигуры
+        protected Pos Pos;
+        protected bool moved = false;
         public abstract List<Pos> PossibleMoves(bool test = false); //возможные шаги
-        public bool WasMoved() //узнаём двигалась ли фигура ранее
+        public bool WasMoved() //узнаём, двигалась ли фигура ранее
         {
             return moved;
         }
@@ -98,7 +98,7 @@ namespace ChessClient
             tmp[1] = Board.prev[1];
             Board.prev[0] = board[Pos.x][Pos.y];
             Board.prev[1] = board[pos.x][pos.y];
-            if (GetType() == typeof(King))
+            if (GetType() == typeof(King)) //рокировка
             {
                 if (Math.Abs(pos.x - Pos.x) > 1)
                 {
@@ -119,7 +119,7 @@ namespace ChessClient
 
             board[Pos.x][Pos.y].SetPiece(null);
 
-            if (GetType() == typeof(Pawn))
+            if (GetType() == typeof(Pawn)) //взятие на проходе
             {
                 if (PieceColor == PieceColor.White)
                 {
@@ -162,7 +162,7 @@ namespace ChessClient
                     }
                 }
             }
-            Capture captured = new Capture(pos, board[pos.x][pos.y].GetPiece());
+            Capture captured = new Capture(pos, board[pos.x][pos.y].GetPiece()); 
             board[pos.x][pos.y].SetPiece(null);
             board[pos.x][pos.y].SetPiece(this);
             Pos.x = pos.x;
@@ -184,7 +184,7 @@ namespace ChessClient
         {
             return image;
         }
-        public Search ToAddPos(Pos Pos)
+        public Search ToAddPos(Pos Pos) //проверка на соответствие стандартным условиям (применяется для всех фигур кроме пешки)
         {
             Search ret;
             if (Pos.x > 7 || Pos.x < 0 || Pos.y > 7 || Pos.y < 0)
@@ -217,7 +217,7 @@ namespace ChessClient
             return ret;
         }
     }
-    class Pawn : Piece
+    class Pawn : Piece //пешка
     {
         public Pawn(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -227,7 +227,7 @@ namespace ChessClient
             BitmapImage bmi = new BitmapImage(new Uri(PieceColor == PieceColor.White ? "pack://application:,,,/resources/whitepawn.png" : "pack://application:,,,/resources/blackpawn.png"));
             image.Source = bmi;
         }
-        protected Search PawnMove(Pos Pos)
+        private Search PawnMove(Pos Pos) //пешка упирается и в фигуры противоположного цвета
         {
             Search ret;
             if (Pos.x > 7 || Pos.x < 0 || Pos.y > 7 || Pos.y < 0)
@@ -251,7 +251,7 @@ namespace ChessClient
             }
             return ret;
         }
-        private bool PawnCapture(Pos Pos)
+        private bool PawnCapture(Pos Pos) //пешка бьет по диагонали но не ходит
         {
             bool ret;
             if (Pos.x > 7 || Pos.x < 0 || Pos.y > 7 || Pos.y < 0)
@@ -289,7 +289,7 @@ namespace ChessClient
             {
                 Pos currpos;
                 Search search;
-                for (int i = 1; i < (moved ? 2 : 3); i++)
+                for (int i = 1; i < (moved ? 2 : 3); i++) //если пешка походила, то она может двинуться только на 1 клетку
                 {
                     currpos = new Pos(Pos.x, Pos.y - i);
                     search = PawnMove(currpos);
@@ -300,7 +300,7 @@ namespace ChessClient
                 }
                 if (Pos.y == 3 && Board.prev[0] != null && Board.prev[1] != null && Board.prev[1].GetPiece().GetType() == typeof(Pawn) && Board.prev[1].GetPiece().GetPieceColor() == PieceColor.Black && Board.prev[1].GetPos().y - Board.prev[0].GetPos().y == 2)
                 {
-                    if (Math.Abs(Board.prev[1].GetPos().x - Pos.x) == 1)
+                    if (Math.Abs(Board.prev[1].GetPos().x - Pos.x) == 1) //взятие на проходе
                         pos.Add(new Pos(Board.prev[1].GetPos().x, Pos.y - 1));
                 }
                 currpos = new Pos(Pos.x - 1, Pos.y - 1);
@@ -336,7 +336,7 @@ namespace ChessClient
                     pos.Add(currpos);
             }
 
-            if (!test)
+            if (!test) //если это был тестовый ход, то возвращаем назад некоторые характеристики
             {
                 Pos startpos = Pos;
                 foreach (Pos p in pos.ToList())
@@ -352,7 +352,7 @@ namespace ChessClient
             return pos;
         }
     }
-    class Rook : Piece
+    class Rook : Piece //ладья
     {
         public Rook(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -362,7 +362,7 @@ namespace ChessClient
             BitmapImage bmi = new BitmapImage(new Uri(PieceColor == PieceColor.White ? "pack://application:,,,/resources/whiterook.png" : "pack://application:,,,/resources/blackrook.png"));
             image.Source = bmi;
         }
-        private bool RookMoves(List<Pos> pos, int n, bool dir)
+        private bool RookMoves(List<Pos> pos, int n, bool dir) //ладья ходит только по осям
         {
             Pos currpos = new Pos(Pos.x + (dir ? n : 0), Pos.y + (!dir ? n : 0));
             Search search = ToAddPos(currpos);
@@ -408,7 +408,7 @@ namespace ChessClient
             return pos;
         }
     }
-    class Knight : Piece
+    class Knight : Piece //конь
     {
         public Knight(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -425,7 +425,7 @@ namespace ChessClient
                 return new List<Pos>();
 
             List<Pos> pos = new List<Pos>();
-            for (int x = -2; x < 3; x++)
+            for (int x = -2; x < 3; x++) //формула для нахождения всех ходов коня
             {
                 if (x != 0)
                 {
@@ -456,7 +456,7 @@ namespace ChessClient
             return pos;
         }
     }
-    class Bishop : Piece
+    class Bishop : Piece //слон
     {
         public Bishop(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -466,7 +466,7 @@ namespace ChessClient
             BitmapImage bmi = new BitmapImage(new Uri(PieceColor == PieceColor.White ? "pack://application:,,,/resources/whitebishop.png" : "pack://application:,,,/resources/blackbishop.png"));
             image.Source = bmi;
         }
-        private bool BishopMoves(List<Pos> pos, int n, bool dir)
+        private bool BishopMoves(List<Pos> pos, int n, bool dir) //слон ходит только по диагонали
         {
             Pos currpos = new Pos(Pos.x + n, dir ? Pos.y + n : Pos.y - n);
             Search search = ToAddPos(currpos);
@@ -512,7 +512,7 @@ namespace ChessClient
             return pos;
         }
     }
-    class Queen : Piece
+    class Queen : Piece //ферзь
     {
         public Queen(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -522,7 +522,7 @@ namespace ChessClient
             BitmapImage bmi = new BitmapImage(new Uri(PieceColor == PieceColor.White ? "pack://application:,,,/resources/whitequeen.png" : "pack://application:,,,/resources/blackqueen.png"));
             image.Source = bmi;
         }
-        private bool QueenDMoves(List<Pos> pos, int n, bool dir)
+        private bool QueenDMoves(List<Pos> pos, int n, bool dir) //диагональные ходы ферзя
         {
             Pos currpos = new Pos(Pos.x + n, dir ? Pos.y + n : Pos.y - n);
             Search search = ToAddPos(currpos);
@@ -533,7 +533,7 @@ namespace ChessClient
             else
                 return false;
         }
-        private bool QueenAMoves(List<Pos> pos, int n, bool dir)
+        private bool QueenAMoves(List<Pos> pos, int n, bool dir) //осевые ходы ферзя
         {
             Pos currpos = new Pos(Pos.x + (dir ? n : 0), Pos.y + (!dir ? n : 0));
             Search search = ToAddPos(currpos);
@@ -591,7 +591,7 @@ namespace ChessClient
             return pos;
         }
     }
-    class King : Piece
+    class King : Piece //король
     {
         public King(Board board, int x, int y, PieceColor pieceColor)
         {
@@ -601,7 +601,7 @@ namespace ChessClient
             BitmapImage bmi = new BitmapImage(new Uri(PieceColor == PieceColor.White ? "pack://application:,,,/resources/whiteking.png" : "pack://application:,,,/resources/blackking.png"));
             image.Source = bmi;
         }
-        private List<Pos> Castling(bool test)
+        private List<Pos> Castling(bool test) //рокировка
         {
             if (moved)
                 return null;

@@ -19,11 +19,11 @@ using System.CodeDom;
 
 namespace ChessClient
 {
-    public class cell : RadioButton //класс фигуры
+    public class cell : RadioButton //класс клетки
     {
-        Pos pos; //позиция фигуры
-        int[] size = new int[2]; //размер
-        Piece piece = null; //тип фигуры
+        Pos pos; //позиция клетки
+        int[] size = new int[2]; //размер клетки
+        Piece piece = null; //фигура в клетке
         bool isChecked = false; //выделена ли клетка
 
         public cell(int x, int y)
@@ -65,7 +65,7 @@ namespace ChessClient
             }
             return c + "h" + (8 - pos.y).ToString();
         }
-        public void SetCheckState(bool state)
+        public void SetCheckState(bool state) //поменять состояние выделения
         {
             isChecked = state;
         }
@@ -73,12 +73,12 @@ namespace ChessClient
         {
             return isChecked;
         }
-        public void SetSize(int x_, int y_)
+        public void SetSize(int x_, int y_) //поменять размер клетки
         {
             size[0] = x_;
             size[1] = y_;
         }
-        public void SetPiece(Piece piece_)
+        public void SetPiece(Piece piece_) //поставить фигуру на клетку
         {
             piece = piece_;
             if (piece_ == null)
@@ -90,7 +90,7 @@ namespace ChessClient
                 ((Grid)Content).Children.Add(dotImage);
             }
         }
-        public Piece GetPiece() //узнать тип фигуры
+        public Piece GetPiece() //получить фигуру
         {
             return piece;
         }
@@ -102,14 +102,14 @@ namespace ChessClient
     public class Board //класс доски
     {
         private PieceColor UserColor;
-        private ServiceChess.ServiceChessClient Client;
+        private ServiceChess.ServiceChessClient Client; //храним клиента для отправки запросов на сервер
         private int ID;
-        MainWindow Window;
-        BitmapImage bmi = new BitmapImage(new Uri("pack://application:,,,/resources/dot.png")); //ставим картинки
         cell[][] board = new cell[8][];
-        bool moved = false;
-        public cell[] prev = new cell[2];
-        System.Windows.Controls.Image[] promote_white = new System.Windows.Controls.Image[4] {
+        MainWindow Window;
+        BitmapImage bmi = new BitmapImage(new Uri("pack://application:,,,/resources/dot.png")); //точка для возможного хода
+        bool moved = false; //был ли совершен ход после последнего выделения клетки
+        public cell[] prev = new cell[2]; //хранение предыдущего хода для взятия на проходе
+        System.Windows.Controls.Image[] promote_white = new System.Windows.Controls.Image[4] { //для показа окошка для выбора фигуры заместо пешки
             ToImage(new BitmapImage(new Uri("pack://application:,,,/resources/whitequeen.png"))),
             ToImage(new BitmapImage(new Uri("pack://application:,,,/resources/whiterook.png"))),
             ToImage(new BitmapImage(new Uri("pack://application:,,,/resources/whitebishop.png"))),
@@ -122,7 +122,7 @@ namespace ChessClient
             ToImage(new BitmapImage(new Uri("pack://application:,,,/resources/blackknight.png")))
         };
         PieceColor turn = PieceColor.White; //первый ход у белых
-        static private System.Windows.Controls.Image ToImage(BitmapImage img)
+        static private System.Windows.Controls.Image ToImage(BitmapImage img) //преобразование из одного класса изображения в другой
         {
             System.Windows.Controls.Image image = new System.Windows.Controls.Image();
             image.Source = img;
@@ -134,7 +134,7 @@ namespace ChessClient
             Checkmate,
             Stalemate
         }
-        private void Cell_Click(object sender, RoutedEventArgs e)
+        private void Cell_Click(object sender, RoutedEventArgs e) //если клетку выделили второй раз, то убрать выделение. Если сделан ход, то убрать выделение
         {
             bool state = ((cell)sender).GetCheckState();
             if (state || moved)
@@ -151,7 +151,7 @@ namespace ChessClient
                 }
             ((cell)sender).SetCheckState(true);
         }
-        private void Cell_Uncheck(object sender, RoutedEventArgs e)
+        private void Cell_Uncheck(object sender, RoutedEventArgs e) //убрать возможные ходы после отмены выделения клетки
         {
             ((cell)sender).SetCheckState(false);
             var new_cell = Window.gridBoard.Children.OfType<cell>().FirstOrDefault(r => r.IsChecked.HasValue && r.IsChecked.Value);
@@ -166,7 +166,7 @@ namespace ChessClient
                 moved = Move((cell)sender, new_cell);
             }
         }
-        public void SetEnabled(bool val)
+        public void SetEnabled(bool val) //включить/выключить клетку
         {
             for (int i = 0; i < 8; i++)
             {
@@ -174,7 +174,7 @@ namespace ChessClient
                     board[i][j].IsEnabled = val;
             }
         }
-        public bool Move(cell start, cell end, bool thisplayer = true, int prom = -1)
+        public bool Move(cell start, cell end, bool thisplayer = true, int prom = -1) //подвинуть фигуру и отправить в список ходов
         {
             bool ret = false;
             if (thisplayer && start.GetPiece().GetPieceColor() != UserColor)
@@ -183,9 +183,9 @@ namespace ChessClient
             {
                 if (start.GetPiece().PossibleMoves().Contains(end.GetPos()))
                 {
-                    Client.CancelDraw(ID);
+                    Client.CancelDraw(ID); //отменить предложения о ничьей
                     string move = "";
-                    if (start.GetPiece().GetType() == typeof(King) && Math.Abs(end.GetPos().x - start.GetPos().x) == 2)
+                    if (start.GetPiece().GetType() == typeof(King) && Math.Abs(end.GetPos().x - start.GetPos().x) == 2) //рокировка
                     {
                         if (end.GetPos().x - start.GetPos().x == 2)
                             move = "0-0";
@@ -194,15 +194,15 @@ namespace ChessClient
                     }
                     else
                     {
-                        move = start.ToString() + " - " + end.GetPos().ToString();
+                        move = start.ToString() + " - " + end.GetPos().ToString(); //остальные ходы записываются как начальная и конечная позиции
                     }
                     if (start.GetPiece().GetPieceColor() == PieceColor.White)
                     {
-                        Window.lbMoves.Items.Add((Window.lbMoves.Items.Count + 1).ToString() + ". " + move);
+                        Window.lbMoves.Items.Add((Window.lbMoves.Items.Count + 1).ToString() + ". " + move); //номер хода
                     }
                     else
                     {
-                        Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = Window.lbMoves.Items[Window.lbMoves.Items.Count - 1].ToString() + " | " + move;
+                        Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = Window.lbMoves.Items[Window.lbMoves.Items.Count - 1].ToString() + " | " + move; //отобразить ход черных
                     }
                     Capture captured = start.GetPiece().MovePiece(board, end.GetPos());
                     if (captured.piece != null)
@@ -210,10 +210,10 @@ namespace ChessClient
                         string str = (string)Window.lbMoves.Items[Window.lbMoves.Items.Count - 1];
                         int i = str.LastIndexOf("-");
                         if (i != -1)
-                            Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = str.Remove(i, 1).Insert(i, ":");
+                            Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = str.Remove(i, 1).Insert(i, ":"); //взятие фигуры обозначается двоеточием вместо тире
                     }
                     ret = true;
-                    if (end.GetPiece().GetType() == typeof(Pawn) && end.GetPos().y == (end.GetPiece().GetPieceColor() == PieceColor.White ? 0 : 7))
+                    if (end.GetPiece().GetType() == typeof(Pawn) && end.GetPos().y == (end.GetPiece().GetPieceColor() == PieceColor.White ? 0 : 7)) //повышение пешки до другой фигуры
                     {
                         Piece[] pieces = new Piece[4];
                         pieces[0] = new Queen(this, end.GetPos().x, end.GetPos().y, end.GetPiece().GetPieceColor());
@@ -234,16 +234,16 @@ namespace ChessClient
                             end.SetPiece(null);
                             end.SetPiece(pieces[prom]);
                         }
-                        Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = Window.lbMoves.Items[Window.lbMoves.Items.Count - 1].ToString() + end.ToString()[0];
+                        Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = Window.lbMoves.Items[Window.lbMoves.Items.Count - 1].ToString() + end.ToString()[0]; //добавить в конце хода имя фигуры на которую поменяли пешку
                     }
                     PieceColor opposite = (end.GetPiece().GetPieceColor() == PieceColor.White) ? PieceColor.Black : PieceColor.White;
-                    if (IsCheck(end.GetPiece().GetPieceColor()))
+                    if (IsCheck(end.GetPiece().GetPieceColor())) //если шах, то поменять фон клетки короля
                     {
                         FindKing(opposite).Background = System.Windows.Media.Brushes.Red;
-                        Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = Window.lbMoves.Items[Window.lbMoves.Items.Count - 1].ToString() + "+";
+                        Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = Window.lbMoves.Items[Window.lbMoves.Items.Count - 1].ToString() + "+"; //шах обозначается плюсом в конце
                     }
                     cell king = FindKing(end.GetPiece().GetPieceColor());
-                    if (king.Background == System.Windows.Media.Brushes.Red)
+                    if (king.Background == System.Windows.Media.Brushes.Red) //поменять фон короля, который больше не под шахом
                         if (!IsCheck(opposite))
                             king.Background = (king.GetPos().x + king.GetPos().y) % 2 == 1 ? System.Windows.Media.Brushes.Gray : System.Windows.Media.Brushes.White;
                     if (king == end && (start).Background == System.Windows.Media.Brushes.Red)
@@ -251,24 +251,24 @@ namespace ChessClient
                             (start).Background = ((start).GetPos().x + (start).GetPos().y) % 2 == 1 ? System.Windows.Media.Brushes.Gray : System.Windows.Media.Brushes.White;
                     Client.Move(ID, (start).GetPos().x, (start).GetPos().y, end.GetPos().x, end.GetPos().y, prom);
                     SwapTurn();
-                    Window.Turn.Source = GetTurn() == PieceColor.White ? new BitmapImage(new Uri("pack://application:,,,/resources/whitequeen.png")) :
+                    Window.Turn.Source = GetTurn() == PieceColor.White ? new BitmapImage(new Uri("pack://application:,,,/resources/whitequeen.png")) : //поменять изображение текущего хода
                         new BitmapImage(new Uri("pack://application:,,,/resources/blackqueen.png"));
                     if (GetTurn() != end.GetPiece().GetPieceColor())
                     {
                         CheckStaleMate checkStaleMate = IsMate(end.GetPiece().GetPieceColor());
-                        if (checkStaleMate == CheckStaleMate.Checkmate)
+                        if (checkStaleMate == CheckStaleMate.Checkmate) //мат
                         {
                             string str = (string)Window.lbMoves.Items[Window.lbMoves.Items.Count - 1];
                             int i = str.LastIndexOf("+");
                             if (i != -1)
-                                Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = str.Remove(i, 1).Insert(i, "x");
+                                Window.lbMoves.Items[Window.lbMoves.Items.Count - 1] = str.Remove(i, 1).Insert(i, "x"); //мат обозначается крестиком в конце
                             string text = end.GetPiece().GetPieceColor() == PieceColor.White ? "1 - 0" : "0 - 1";
                             Window.lbMoves.Items.Add(text);
                             SwapTurn();
                             MessageBox.Show((end.GetPiece().GetPieceColor() == PieceColor.White ? "Белые" : "Чёрные") + " поставили мат! Игра окончена!");
                             Window.Enable(false);
                         }
-                        else if (checkStaleMate == CheckStaleMate.Stalemate)
+                        else if (checkStaleMate == CheckStaleMate.Stalemate) //пат
                         {
                             string text = "0.5 - 0.5";
                             Window.lbMoves.Items.Add(text);
@@ -347,11 +347,11 @@ namespace ChessClient
                 SwapTurn();
             return check;
         }
-        public cell[][] GetBoard() //узнаём клетку
+        public cell[][] GetBoard() //получить доску
         {
             return board;
         }
-        public PieceColor GetTurn() //узнаём ход
+        public PieceColor GetTurn() //получить текущий ход
         {
             return turn;
         }
@@ -363,16 +363,16 @@ namespace ChessClient
         {
             UserColor = val;
         }
-        public void SwapTurn() //меяем ход
+        public void SwapTurn() //поменять ход
         {
             turn = (turn == PieceColor.White ? PieceColor.Black : PieceColor.White);
         }
-        public void SetClient(ServiceChess.ServiceChessClient client, int id) //меняем ход
+        public void SetClient(ServiceChess.ServiceChessClient client, int id) //изменить клиента и айди
         {
             Client = client;
             ID = id;
         }
-        public Board(PieceColor Color) //расставляем фигуры на доске
+        public Board(PieceColor Color) //расставить фигуры на доске
         {
             UserColor = Color;
             for (int i = 0; i < 8; i++)
@@ -417,7 +417,7 @@ namespace ChessClient
             board[6][7].SetPiece(new Knight(this, 6, 7, PieceColor.White));
             board[7][7].SetPiece(new Rook(this, 7, 7, PieceColor.White));
         }
-        public void Draw(MainWindow window) //отрисовка фигур
+        public void Draw(MainWindow window) //отрисовка доски
         {
             Window = window;
             Window.lbMoves.Items.Clear();

@@ -16,7 +16,7 @@ namespace Chess
     public class ServiceChess : IServiceChess
     {
         List<List<ServerUser>> users = new List<List<ServerUser>>(); //создаём список пользователей
-        List<ServerUser> curr = new List<ServerUser>();
+        List<ServerUser> curr = new List<ServerUser>(); //очередь
         public int nextId = 1; //переменная для создания id пользователей
 
         public Get Connect(string name)
@@ -84,8 +84,8 @@ namespace Chess
                     {
                         if (user != null)
                         {
-                            sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().Surrender(2);
-                            SendMsg(user.Name + " вышел из игры", 0, sess[1 - i].ID); //отправляем сообщение об этом
+                            sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().Surrender(2); //игрок сдался путем выхода из игры
+                            SendMsg(user.Name + " вышел из игры", 0, sess[1 - i].ID); //отправляем сообщение о выходе игрока из игры
                             sess[1 - i].Ready = false;
                             int c = 0;
                             if (curr.Count == 0)
@@ -103,12 +103,12 @@ namespace Chess
                             sess[1 - i].Color = c == 0 ? PieceColor.White : PieceColor.Black;
                             sess[1 - i].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(sess[1 - i].Color);
                             sess[1 - i].Ready = true;
-                            curr.Add(sess[1 - i]);
+                            curr.Add(sess[1 - i]); //перекинуть оставшегося игрока в очередь
                             users.Remove(sess);
                             sess.Clear();
-                            if (curr.Count == 2)
+                            if (curr.Count == 2) //начать игру если в очереди уже кто-то был
                             {
-                                SendMsg(curr[1].Name + " зашёл в игру", 0, curr[0].ID); //отправляем сообщение
+                                SendMsg(curr[1].Name + " зашёл в игру", 0, curr[0].ID); //отправляем сообщение о входе
                                 curr[1].Color = c == 0 ? PieceColor.White : PieceColor.Black;
                                 curr[1].OperationContext.GetCallbackChannel<IServerChessCallback>().ChangeColor(curr[1].Color);
                                 var opp = curr[0];
@@ -129,7 +129,7 @@ namespace Chess
         }
         ServerUser GetUser(int id)
         {
-            if (curr.Count == 1)
+            if (curr.Count == 1) //если в очереди есть человек, то это может оказаться нужный
             {
                 var user = curr[0];
                 if (user != null)
@@ -140,7 +140,7 @@ namespace Chess
                     }
                 }
             }
-            if (curr.Count == 2)
+            if (curr.Count == 2) //если в очереди два человека но она еще не добавлена в список [не должно вызываться вообще]
             {
                 for (int i = 0; i < 2; i++)
                 {
@@ -154,9 +154,9 @@ namespace Chess
                     }
                 }
             }
-            foreach (var sess in users) //проходим по всем пользователям
+            foreach (var sess in users) //проходим по всем сессиям
             {
-                for (int i = 0; i < 2; i++)
+                for (int i = 0; i < 2; i++) //находим игрока
                 {
                     var user = sess[i];
                     if (user != null)
@@ -172,7 +172,7 @@ namespace Chess
         }
         ServerUser GetOpponent(int id)
         {
-            if (curr.Count == 2)
+            if (curr.Count == 2) //если в очереди два человека но она еще не добавлена в список [не должно вызываться вообще]
             {
                 for (int i = 0; i < 2; i++)
                 {
@@ -186,9 +186,9 @@ namespace Chess
                     }
                 }
             }
-            foreach (var sess in users) //проходим по всем пользователям
+            foreach (var sess in users) //проходим по всем сессиям
             {
-                for (int i = 0; i < 2; i++)
+                for (int i = 0; i < 2; i++) //находим игрока
                 {
                     var user = sess[i];
                     if (user != null)
@@ -211,7 +211,7 @@ namespace Chess
                 var receiver = GetUser(to);
                 answer += msg;
 
-                receiver?.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer); //отправляем само сообщение
+                receiver?.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer); //отправляем сообщение определенному игроку
                 return;
             }
             var opp = GetOpponent(id);
@@ -219,10 +219,10 @@ namespace Chess
                 answer += "<" + user.Name + ">: ";
             answer += msg;
 
-            user?.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer); //отправляем само сообщение
+            user?.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer); //отправляем обоим
             opp?.OperationContext.GetCallbackChannel<IServerChessCallback>().MsgCallback(answer);
         }
-        public void Surrender(int id, int val) //сдача
+        public void Surrender(int id, int val)
         {
             GetOpponent(id).OperationContext.GetCallbackChannel<IServerChessCallback>().Surrender(val); //отправляем сообщение о сдаче
         }

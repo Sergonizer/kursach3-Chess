@@ -12,7 +12,7 @@ namespace Chess
     public interface IServiceChess //интерфейс действий пользователя
     {
         [OperationContract]
-        Get Connect(string name); //подключение к матчу
+        Get Connect(string name); //подключение к партии
         [OperationContract]
         void Disconnect(int id); //отключение
         [OperationContract(IsOneWay = true)] //не нужна обработка от сервера
@@ -28,7 +28,7 @@ namespace Chess
         [OperationContract(IsOneWay = true)]
         void CancelDraw(int id); //убрать состояние ничьей
         [OperationContract(IsOneWay = true)]
-        void UpdateColor(int id, PieceColor color); //готовность
+        void UpdateColor(int id, PieceColor color); //у игрока поменялся цвет
     }
     public interface IServerChessCallback //интерфейс действий сервера
     {

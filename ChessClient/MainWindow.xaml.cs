@@ -28,20 +28,20 @@ namespace ChessClient
         {
             InitializeComponent();
         }
-        public void Enable(bool val)
+        public void Enable(bool val) //включить доску и кнопки сдачи и ничьей
         {
             board.SetEnabled(val);
             btnSurr.IsEnabled = val;
             btnDraw.IsEnabled = val;
         }
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e) //при загрузке окна надо создать доску и клиента
         {
             ChangeColor(PieceColor.White);
             board.Draw(this);
             Enable(false);
             client = new ServiceChess.ServiceChessClient(new System.ServiceModel.InstanceContext(this));
         }
-        void ConnectUser()
+        void ConnectUser() //подключиться и получить данные о пользователе с сервера
         {
             if (!isConnected)
             {
@@ -55,7 +55,7 @@ namespace ChessClient
                 client.Ready(ID);
             }
         }
-        void DisconnectUser()
+        void DisconnectUser() //отключиться и заблокировать доску
         {
             if (isConnected)
             {
@@ -66,7 +66,7 @@ namespace ChessClient
                 Enable(false);
             }
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e) //подключение и отключение по нажатию на кнопку
         {
             if (isConnected)
             {
@@ -77,12 +77,12 @@ namespace ChessClient
                 ConnectUser();
             }
         }
-        public void MsgCallback(string msg)
+        public void MsgCallback(string msg) //принять сообщение
         {
             lbChat.Items.Add(msg);
             lbChat.ScrollIntoView(lbChat.Items[lbChat.Items.Count - 1]);
         }
-        public void ChangeColor(PieceColor color)
+        public void ChangeColor(PieceColor color) //сменить цвет (и пересоздать доску)
         {
             board = new Board(color);
             board.SetClient(client, ID);
@@ -93,12 +93,12 @@ namespace ChessClient
             ChangeColor((PieceColor)color);
             client.UpdateColor(ID, color);
         }
-        void ServiceChess.IServiceChessCallback.MoveUser(int x1, int y1, int x2, int y2, int promote)
+        void ServiceChess.IServiceChessCallback.MoveUser(int x1, int y1, int x2, int y2, int promote) //принять ход с сервера
         {
             board.Move(board.GetBoard()[x1][y1], board.GetBoard()[x2][y2], false, promote);
         }
 
-        void ServiceChess.IServiceChessCallback.SurrenderUser(int val)
+        void ServiceChess.IServiceChessCallback.SurrenderUser(int val) //принять сдачу от другого игрока
         {
             if (btnSurr.IsEnabled == true)
             {
@@ -111,12 +111,12 @@ namespace ChessClient
             }
             Enable(false);
         }
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) //отключиться при закрытии окна
         {
             DisconnectUser();
         }
 
-        private void tbMessage_KeyDown(object sender, KeyEventArgs e)
+        private void tbMessage_KeyDown(object sender, KeyEventArgs e) //отправить сообщение в чат
         {
             if (e.Key == Key.Enter && client != null)
             {
@@ -125,20 +125,20 @@ namespace ChessClient
             }
         }
 
-        void ServiceChess.IServiceChessCallback.Start()
+        void ServiceChess.IServiceChessCallback.Start() //начать игру
         {
             ChangeColor(board.GetUser());
             board.Draw(this);
             Enable(true);
         }
 
-        private void Surrender(object sender, RoutedEventArgs e)
+        private void Surrender(object sender, RoutedEventArgs e) //сдаться
         {
             Enable(false);
             client.Surrender(ID, 1);
         }
 
-        private void Draw(object sender, RoutedEventArgs e)
+        private void Draw(object sender, RoutedEventArgs e) //отправить предложение о ничьей
         {
             client.Draw(ID);
         }
@@ -154,11 +154,6 @@ namespace ChessClient
             lbMoves.Items.Add(text);
             MessageBox.Show("Ничья! Игра окончена!");
             Enable(false);
-        }
-
-        public void MoveUser(int x1, int y1, int x2, int y2)
-        {
-            throw new NotImplementedException();
         }
     }
 }
